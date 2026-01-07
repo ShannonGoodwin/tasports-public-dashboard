@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TasPorts – Live charts</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>TasPorts Dredging Program – Water Quality Dashboard</h1>
+      <p class="subhead">Live charts. Data are displayed as received from telemetry systems and may be unvalidated.</p>
+    </div>
+    <nav class="topbar-actions">
+      <a class="pill" href="index.html">Map + live tiles</a>
+      <a class="pill active" href="charts.html">Live charts</a>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <h2>Chart view</h2>
+
+      <div class="controls">
+        <label>
+          View
+          <select id="viewMode">
+            <option value="station">By station</option>
+            <option value="parameter">By parameter</option>
+          </select>
+        </label>
+
+        <label id="stationPickerWrap">
+          Station
+          <select id="stationPicker"></select>
+        </label>
+
+        <label id="paramPickerWrap" style="display:none;">
+          Parameter
+          <select id="paramPicker">
+            <option value="turbidity">Turbidity</option>
+            <option value="tss">TSS</option>
+            <option value="do">Dissolved oxygen</option>
+            <option value="ph">pH</option>
+            <option value="temp">Temperature</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="chartsContainer" class="charts-grid"></div>
+      <div id="chartsMsg" class="muted"></div>
+    </section>
+  </main>
+
+  <script src="apps.js"></script>
+</body>
+</html>
