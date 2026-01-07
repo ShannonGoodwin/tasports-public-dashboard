@@ -22,6 +22,22 @@
           "ph": "",
           "temp": ""
         }
+      },
+      "data": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/data/tmv503b95xn6a5j",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        },
+        "bottom": {
+          "turbidity": "https://public.eagle.io/public/data/528orugwhjb6swn",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
       }
     },
     {
@@ -46,6 +62,22 @@
           "ph": "",
           "temp": ""
         }
+      },
+      "data": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/data/eld8atoi2rv8v5p",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        },
+        "bottom": {
+          "turbidity": "https://public.eagle.io/public/data/y0ujhmir4wqoqhy",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
       }
     },
     {
@@ -58,6 +90,15 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/hs9juhzrpqp2enp",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
+      },
+      "data": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/data/ysyn8371qljh67n",
           "tss": "",
           "do": "",
           "ph": "",
@@ -87,6 +128,22 @@
           "ph": "",
           "temp": ""
         }
+      },
+      "data": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/data/zfgtmit0zfkcw46",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        },
+        "bottom": {
+          "turbidity": "https://public.eagle.io/public/data/5bc7fq5z0w63l02",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
       }
     },
     {
@@ -99,6 +156,15 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/iuu2p7j7ura33mu",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
+      },
+      "data": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/data/4hze23iolf2ikwt",
           "tss": "",
           "do": "",
           "ph": "",
@@ -123,6 +189,22 @@
         },
         "bottom": {
           "turbidity": "https://public.eagle.io/public/chart/0gpnhn60rl7oiv2",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
+      },
+      "data": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/data/ttef5jrkcv98xqm",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        },
+        "bottom": {
+          "turbidity": "https://public.eagle.io/public/data/qn9nemubbo3r9ww",
           "tss": "",
           "do": "",
           "ph": "",
