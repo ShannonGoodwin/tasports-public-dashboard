@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TasPorts – Water Quality Dashboard</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+</head>
+<body>
+  <header class="header">
+    <div class="header__inner">
+      <div>
+        <h1>TasPorts Dredging Program – Water Quality Dashboard</h1>
+        <p class="subtle">
+          Public reporting interface. Data are displayed as received from telemetry systems and may be unvalidated.
+        </p>
+      </div>
+      <div class="header__badges">
+        <span class="badge badge--info">Live charts</span>
+        <span class="badge badge--neutral">Map: station positions</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel panel--map">
+      <h2>Site map</h2>
+      <div id="map"></div>
+      <p class="subtle small">
+        Click a marker to jump to that station’s summary and charts.
+      </p>
+    </section>
+
+    <section class="panel panel--cards">
+      <h2>Stations</h2>
+      <div id="cards" class="cards"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="small subtle">
+        Data source: Eagle.io (Xylem telemetry platform). Charts are served via anonymous public links.
+      </div>
+    </div>
+  </footer>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="app.js"></script>
+</body>
+</html>

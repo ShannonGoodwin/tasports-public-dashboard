@@ -1,0 +1,77 @@
+{
+  "stations": [
+    {
+      "id": "forth",
+      "name": "Forth",
+      "coords": [-41.15173, 146.22795],
+      "sensors": ["top", "bottom"],
+      "status": "Compliant",
+      "lastSampleText": "Shown in chart headers",
+      "charts": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/chart/wceelzcnzrpyfuj",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        },
+        "bottom": {
+          "turbidity": "https://public.eagle.io/public/chart/6l490um3bibuprw",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
+      }
+    },
+    {
+      "id": "offshore",
+      "name": "Offshore",
+      "coords": [-41.06578, 146.33923],
+      "sensors": ["top", "bottom"],
+      "status": "Compliant",
+      "lastSampleText": "Shown in chart headers",
+      "charts": { "top": { "turbidity": "https://public.eagle.io/public/chart/kcbvw7ff94ys0yb", "tss": "", "do": "", "ph": "", "temp": "" }, "bottom": { "turbidity": "", "tss": "", "do": "", "ph": "", "temp": "" } , "bottom": {"turbidity": "https://public.eagle.io/public/chart/gnc70jr0xrbs4d1", "tss": "", "do": "", "ph": "", "temp": ""}}
+    },
+    {
+      "id": "estuary",
+      "name": "Estuary Mouth",
+      "coords": [-41.16385, 146.37743],
+      "sensors": ["top"],
+      "status": "Compliant",
+      "lastSampleText": "Shown in chart headers",
+      "charts": { "top": { "turbidity": "https://public.eagle.io/public/chart/hs9juhzrpqp2enp", 
+"tss": "", 
+"do": "", 
+"ph": "", 
+"temp": "" } }
+    },
+    {
+      "id": "scallops",
+      "name": "Scallops",
+      "coords": [-41.10908, 146.43819],
+      "sensors": ["top", "bottom"],
+      "status": "Compliant",
+      "lastSampleText": "Shown in chart headers",
+      "charts": { "top": { "turbidity": "https://public.eagle.io/public/chart/p7g90th1n9yzo0b", "tss": "", "do": "", "ph": "", "temp": "" }, "bottom": { "turbidity": "", "tss": "", "do": "", "ph": "", "temp": "" }, { "bottom": { "turbidity": "https://public.eagle.io/public/chart/3gepfuyvxzj6ocb", "tss": "", "do": "", "ph": "", "temp": "" }, "bottom": { "turbidity": "", "tss": "", "do": "", "ph": "", "temp": "" } }
+    },
+    {
+      "id": "grayling",
+      "name": "Grayling",
+      "coords": [-41.208912, 146.372452],
+      "sensors": ["top"],
+      "status": "Compliant",
+      "lastSampleText": "Shown in chart headers",
+      "charts": { "top": { "turbidity": "https://public.eagle.io/public/chart/iuu2p7j7ura33mu", "tss": "", "do": "", "ph": "", "temp": "" }, "bottom": { "turbidity": "", "tss": "", "do": "", "ph": "", "temp": "" } }
+    },
+    {
+      "id": "seagrass",
+      "name": "Seagrass",
+      "coords": [-41.1614, 146.3944],
+      "sensors": ["top", "bottom"],
+      "status": "Compliant",
+      "lastSampleText": "Shown in chart headers",
+      "charts": { "top": { "turbidity": "https://app.eagle.io/ui/xyle510/TasPorts/Statistics/Charts/Seagrass_Top/?v=chart&m=show&ct=D-7D&s=custom", "tss": "", "do": "", "ph": "", "temp": "" }, { "bottom": { "turbidity": "https://public.eagle.io/public/chart/0gpnhn60rl7oiv2", "tss": "", "do": "", "ph": "", "temp": "" } }
+    }
+  ]
+}
