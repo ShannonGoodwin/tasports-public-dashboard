@@ -31,7 +31,22 @@
       "sensors": ["top", "bottom"],
       "status": "Compliant",
       "lastSampleText": "Shown in chart headers",
-      "charts": { "top": { "turbidity": "https://public.eagle.io/public/chart/kcbvw7ff94ys0yb", "tss": "", "do": "", "ph": "", "temp": "" }, "bottom": { "turbidity": "", "tss": "", "do": "", "ph": "", "temp": "" } , "bottom": {"turbidity": "https://public.eagle.io/public/chart/gnc70jr0xrbs4d1", "tss": "", "do": "", "ph": "", "temp": ""}}
+      "charts": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/chart/kcbvw7ff94ys0yb",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        },
+        "bottom": {
+          "turbidity": "https://public.eagle.io/public/chart/gnc70jr0xrbs4d1",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
+      }
     },
     {
       "id": "estuary",
@@ -40,11 +55,15 @@
       "sensors": ["top"],
       "status": "Compliant",
       "lastSampleText": "Shown in chart headers",
-      "charts": { "top": { "turbidity": "https://public.eagle.io/public/chart/hs9juhzrpqp2enp", 
-"tss": "", 
-"do": "", 
-"ph": "", 
-"temp": "" } }
+      "charts": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/chart/hs9juhzrpqp2enp",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
+      }
     },
     {
       "id": "scallops",
@@ -53,7 +72,22 @@
       "sensors": ["top", "bottom"],
       "status": "Compliant",
       "lastSampleText": "Shown in chart headers",
-      "charts": { "top": { "turbidity": "https://public.eagle.io/public/chart/p7g90th1n9yzo0b", "tss": "", "do": "", "ph": "", "temp": "" }, "bottom": { "turbidity": "", "tss": "", "do": "", "ph": "", "temp": "" }, { "bottom": { "turbidity": "https://public.eagle.io/public/chart/3gepfuyvxzj6ocb", "tss": "", "do": "", "ph": "", "temp": "" }, "bottom": { "turbidity": "", "tss": "", "do": "", "ph": "", "temp": "" } }
+      "charts": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/chart/p7g90th1n9yzo0b",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        },
+        "bottom": {
+          "turbidity": "https://public.eagle.io/public/chart/3gepfuyvxzj6ocb",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
+      }
     },
     {
       "id": "grayling",
@@ -62,7 +96,15 @@
       "sensors": ["top"],
       "status": "Compliant",
       "lastSampleText": "Shown in chart headers",
-      "charts": { "top": { "turbidity": "https://public.eagle.io/public/chart/iuu2p7j7ura33mu", "tss": "", "do": "", "ph": "", "temp": "" }, "bottom": { "turbidity": "", "tss": "", "do": "", "ph": "", "temp": "" } }
+      "charts": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/chart/iuu2p7j7ura33mu",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
+      }
     },
     {
       "id": "seagrass",
@@ -71,7 +113,22 @@
       "sensors": ["top", "bottom"],
       "status": "Compliant",
       "lastSampleText": "Shown in chart headers",
-      "charts": { "top": { "turbidity": "https://app.eagle.io/ui/xyle510/TasPorts/Statistics/Charts/Seagrass_Top/?v=chart&m=show&ct=D-7D&s=custom", "tss": "", "do": "", "ph": "", "temp": "" }, { "bottom": { "turbidity": "https://public.eagle.io/public/chart/0gpnhn60rl7oiv2", "tss": "", "do": "", "ph": "", "temp": "" } }
+      "charts": {
+        "top": {
+          "turbidity": "https://public.eagle.io/public/chart/rhc7sqz43qxmeyc",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        },
+        "bottom": {
+          "turbidity": "https://public.eagle.io/public/chart/0gpnhn60rl7oiv2",
+          "tss": "",
+          "do": "",
+          "ph": "",
+          "temp": ""
+        }
+      }
     }
   ]
 }
