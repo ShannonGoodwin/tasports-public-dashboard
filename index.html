@@ -14,7 +14,7 @@
   />
 </head>
 <body>
-  <header class="header">
+  <header class="header" id="top">
     <div class="header__inner">
       <div>
         <h1>TasPorts Dredging Program – Water Quality Dashboard</h1>
@@ -22,32 +22,35 @@
           Public reporting interface. Data are displayed as received from telemetry systems and may be unvalidated.
         </p>
       </div>
-      <div class="header__badges">
-        <span class="badge badge--info">Live charts</span>
-        <span class="badge badge--neutral">Map: station positions</span>
-      </div>
+      <nav class="header__nav">
+        <a class="navpill navpill--active" href="index.html">Map + live tiles</a>
+        <a class="navpill" href="charts.html">Live charts</a>
+      </nav>
     </div>
   </header>
 
   <main class="layout">
+    <section class="panel">
+      <h2>Live turbidity</h2>
+      <div id="turbidity-tiles" class="tiles-grid"></div>
+      <p class="subtle small">
+        Values are the latest available for each sensor (Top/Bottom where present). Click a tile to open the charts page for that station.
+      </p>
+    </section>
+
     <section class="panel panel--map">
       <h2>Site map</h2>
       <div id="map"></div>
       <p class="subtle small">
-        Click a marker to jump to that station’s summary and charts.
+        Click a marker to open the charts page for that station.
       </p>
-    </section>
-
-    <section class="panel panel--cards">
-      <h2>Stations</h2>
-      <div id="cards" class="cards"></div>
     </section>
   </main>
 
   <footer class="footer">
     <div class="footer__inner">
       <div class="small subtle">
-        Data source: Eagle.io (Xylem telemetry platform). Charts are served via anonymous public links.
+        Data source: Eagle.io (Xylem telemetry platform). Tiles are derived from anonymous public data links; charts are anonymous public embeds.
       </div>
     </div>
   </footer>
