@@ -2,20 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>TasPorts – Live charts</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <h1>TasPorts Dredging Program – Water Quality Dashboard</h1>
-      <p class="subhead">Live charts. Data are displayed as received from telemetry systems and may be unvalidated.</p>
+  <header class="header" id="top">
+    <div class="header__inner">
+      <div>
+        <h1>TasPorts Dredging Program – Water Quality Dashboard</h1>
+        <p class="subtle">
+          Live charts. Data are displayed as received from telemetry systems and may be unvalidated.
+        </p>
+      </div>
+      <nav class="header__nav">
+        <a class="navpill" href="index.html">Map + live tiles</a>
+        <a class="navpill navpill--active" href="charts.html">Live charts</a>
+      </nav>
     </div>
-    <nav class="topbar-actions">
-      <a class="pill" href="index.html">Map + live tiles</a>
-      <a class="pill active" href="charts.html">Live charts</a>
-    </nav>
   </header>
 
   <main class="layout">
@@ -23,7 +27,7 @@
       <h2>Chart view</h2>
 
       <div class="controls">
-        <label>
+        <label class="control">
           View
           <select id="viewMode">
             <option value="station">By station</option>
@@ -31,12 +35,12 @@
           </select>
         </label>
 
-        <label id="stationPickerWrap">
+        <label class="control" id="stationPickerWrap">
           Station
           <select id="stationPicker"></select>
         </label>
 
-        <label id="paramPickerWrap" style="display:none;">
+        <label class="control" id="paramPickerWrap" style="display:none;">
           Parameter
           <select id="paramPicker">
             <option value="turbidity">Turbidity</option>
@@ -48,11 +52,19 @@
         </label>
       </div>
 
+      <div id="chartsMsg" class="small subtle"></div>
       <div id="chartsContainer" class="charts-grid"></div>
-      <div id="chartsMsg" class="muted"></div>
     </section>
   </main>
 
-  <script src="apps.js"></script>
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="small subtle">
+        Charts are served from Eagle.io via anonymous public links.
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
 </body>
 </html>
