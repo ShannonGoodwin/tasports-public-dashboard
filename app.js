@@ -8,12 +8,29 @@ async function loadStations() {
 function currentPage() {
   const p = (window.location.pathname || "").toLowerCase();
   if (p.endsWith("/charts.html")) return "charts";
-  // Netlify often serves / for index
   return "index";
 }
 
 function getQueryParam(key) {
   return new URLSearchParams(window.location.search).get(key);
+}
+
+/* ---------------------------
+   Helpers: station schema
+   - supports either stations[].data or stations[].values
+---------------------------- */
+function getStationFeeds(station) {
+  // Prefer "data" if present, else fall back to "values"
+  return station?.data || station?.values || {};
+}
+
+function labelForParam(paramKey) {
+  if (paramKey === "turbidity") return "Turbidity (15-day running median)";
+  if (paramKey === "do") return "Dissolved oxygen";
+  if (paramKey === "ph") return "pH";
+  if (paramKey === "temp") return "Temperature";
+  if (paramKey === "tss") return "Total suspended solids (TSS)";
+  return paramKey.toUpperCase();
 }
 
 /* ---------------------------
@@ -40,29 +57,34 @@ async function fetchLatestFromEagleDataUrl(dataUrl) {
 }
 
 function turbidityClass(value) {
-  // Placeholder thresholds (we can change once permit triggers are confirmed)
-  // Green < 5, Amber 5–10, Red >= 10
+  // Placeholder thresholds
   if (value >= 10) return "tile red";
   if (value >= 5) return "tile amber";
   return "tile green";
 }
 
-function formatFnu(value) {
-  return `${value.toFixed(2)} FNU`;
+function formatValue(paramKey, value) {
+  if (paramKey === "turbidity") return `${value.toFixed(2)} FNU`;
+  if (paramKey === "temp") return `${value.toFixed(2)} °C`;
+  if (paramKey === "ph") return `${value.toFixed(2)}`;
+  if (paramKey === "do") return `${value.toFixed(2)}`; // units TBD (mg/L or % sat) – keep numeric until confirmed
+  return `${value.toFixed(2)}`;
 }
 
-async function renderTurbidityTiles(stations) {
-  const container = document.getElementById("turbidity-tiles");
+async function renderParameterTiles(stations, paramKey) {
+  const container = document.getElementById("turbidity-tiles"); // same container on index
   if (!container) return;
 
-  container.innerHTML = `<div class="tiles-loading">Loading live turbidity…</div>`;
+  container.innerHTML = `<div class="tiles-loading">Loading ${labelForParam(paramKey)}…</div>`;
 
   const tiles = [];
 
   for (const s of stations) {
     const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
+    const feeds = getStationFeeds(s);
+
     for (const level of sensors) {
-      const url = s?.data?.[level]?.turbidity || "";
+      const url = feeds?.[level]?.[paramKey] || "";
       if (!url) continue;
 
       try {
@@ -86,7 +108,7 @@ async function renderTurbidityTiles(stations) {
   }
 
   if (!tiles.length) {
-    container.innerHTML = `<div class="tiles-loading">No turbidity data links configured yet.</div>`;
+    container.innerHTML = `<div class="tiles-loading">No public data links configured for ${labelForParam(paramKey)}.</div>`;
     return;
   }
 
@@ -94,9 +116,12 @@ async function renderTurbidityTiles(stations) {
     const title = `${t.stationName} – ${String(t.level).toUpperCase()}`;
     const valueHtml = t.error
       ? `<div class="tile-value">—</div><div class="tile-sub">No data / error</div>`
-      : `<div class="tile-value">${formatFnu(t.value)}</div><div class="tile-sub">${new Date(t.timestamp).toLocaleString()}</div>`;
+      : `<div class="tile-value">${formatValue(paramKey, t.value)}</div><div class="tile-sub">${new Date(t.timestamp).toLocaleString()}</div>`;
 
-    const cls = t.error ? "tile gray" : turbidityClass(t.value);
+    // Only turbidity has colour thresholds for now
+    const cls = t.error
+      ? "tile gray"
+      : (paramKey === "turbidity" ? turbidityClass(t.value) : "tile");
 
     return `
       <button class="${cls}" data-station="${t.stationId}" aria-label="${title}">
@@ -112,6 +137,40 @@ async function renderTurbidityTiles(stations) {
       window.location.href = `charts.html?station=${encodeURIComponent(id)}`;
     });
   });
+}
+
+/* ---------------------------
+   Index parameter tabs (landing page)
+   - For now we expose turbidity only
+   - We keep DO/pH/temp hidden until client decides
+---------------------------- */
+function initIndexTabs() {
+  const panel = document.querySelector(".panel");
+  if (!panel) return;
+
+  // Insert a tiny tab bar under the H2 if it isn’t already there
+  const existing = document.getElementById("param-tabs");
+  if (existing) return;
+
+  const tabs = document.createElement("div");
+  tabs.id = "param-tabs";
+  tabs.className = "param-tabs";
+  tabs.innerHTML = `
+    <button class="tab tab-active" data-param="turbidity">Turbidity (15-day median)</button>
+    <!-- Future options (keep commented until client confirms):
+    <button class="tab" data-param="do">DO</button>
+    <button class="tab" data-param="ph">pH</button>
+    <button class="tab" data-param="temp">Temp</button>
+    -->
+  `;
+
+  // Put tabs right after the H2
+  const h2 = panel.querySelector("h2");
+  if (h2 && h2.nextSibling) {
+    h2.parentNode.insertBefore(tabs, h2.nextSibling);
+  } else if (h2) {
+    h2.parentNode.appendChild(tabs);
+  }
 }
 
 /* ---------------------------
@@ -142,18 +201,13 @@ function initMap(stations) {
       ${lat.toFixed(5)}, ${lon.toFixed(5)}<br/>
       <a href="charts.html?station=${encodeURIComponent(st.id)}">Open charts</a>
     `);
-
-    marker.on("click", () => {
-      // Clicking marker should also just open charts for that station (fast UX)
-      // Keep popup (nice), but also allow direct navigation via link.
-    });
   });
 
   if (bounds.length) map.fitBounds(bounds, { padding: [30, 30] });
 }
 
 /* ---------------------------
-   CHARTS PAGE
+   CHARTS PAGE (unchanged)
 ---------------------------- */
 function buildStationOptions(stations) {
   const sel = document.getElementById("stationPicker");
@@ -192,7 +246,6 @@ function renderChartsByStation(stations, stationId) {
   const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
   for (const level of sensors) {
     const charts = s?.charts?.[level] || {};
-    // For now you only have turbidity; others can be added later
     if (charts.turbidity) blocks.push(buildChartCard(charts.turbidity, `${s.name} – ${String(level).toUpperCase()} – Turbidity`));
     if (charts.tss) blocks.push(buildChartCard(charts.tss, `${s.name} – ${String(level).toUpperCase()} – TSS`));
     if (charts.do) blocks.push(buildChartCard(charts.do, `${s.name} – ${String(level).toUpperCase()} – Dissolved oxygen`));
@@ -237,7 +290,6 @@ function initChartsPage(stations) {
   const stationWrap = document.getElementById("stationPickerWrap");
   const paramWrap = document.getElementById("paramPickerWrap");
 
-  // Preset station from query ?station=...
   const presetStation = getQueryParam("station");
   if (presetStation && stationPicker) stationPicker.value = presetStation;
 
@@ -270,10 +322,32 @@ function initChartsPage(stations) {
 
     if (currentPage() === "index") {
       initMap(stations);
-      // Live turbidity tiles require stations.json to have data URLs:
-      // stations[].data.top.turbidity and/or stations[].data.bottom.turbidity
-      await renderTurbidityTiles(stations);
-      setInterval(() => renderTurbidityTiles(stations), 5 * 60 * 1000);
+      initIndexTabs();
+
+      // Landing page: show turbidity only for now
+      let currentParam = "turbidity";
+      await renderParameterTiles(stations, currentParam);
+
+      // Wire future tab behaviour (only turbidity exists right now)
+      const tabs = document.getElementById("param-tabs");
+      if (tabs) {
+        tabs.addEventListener("click", async (e) => {
+          const btn = e.target.closest("button[data-param]");
+          if (!btn) return;
+
+          const param = btn.getAttribute("data-param");
+          if (!param) return;
+
+          // update UI
+          tabs.querySelectorAll(".tab").forEach(b => b.classList.remove("tab-active"));
+          btn.classList.add("tab-active");
+
+          currentParam = param;
+          await renderParameterTiles(stations, currentParam);
+        });
+      }
+
+      setInterval(() => renderParameterTiles(stations, currentParam), 5 * 60 * 1000);
     }
 
     if (currentPage() === "charts") {
