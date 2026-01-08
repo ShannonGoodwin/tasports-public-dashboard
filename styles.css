@@ -175,3 +175,27 @@ select{
   margin:0 auto;
   padding:16px 18px;
 }
+
+.param-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin: 8px 0 12px 0;
+}
+
+.tab{
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor:pointer;
+  font-size: 13px;
+}
+
+.tab:hover{ background: rgba(255,255,255,0.10); }
+
+.tab-active{
+  outline: 2px solid rgba(255,255,255,0.20);
+}
+
