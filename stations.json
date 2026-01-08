@@ -45,7 +45,7 @@
       "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/54s7uyyg15m7azf,
+          "turbidity": "https://public.eagle.io/public/data/54s7uyyg15m7azf",
           "do": "https://public.eagle.io/public/data/1m4qj8v7g2h1b3d",
           "ph": "https://public.eagle.io/public/data/3x2m7v9q1k5p2t8",
           "temp": "https://public.eagle.io/public/data/9c4h1m8q2v0b7n6"
@@ -150,7 +150,6 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/iuu2p7j7ura33mu",
-          "tss": "",
           "do": "",
           "ph": "",
           "temp": ""
@@ -181,14 +180,12 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/rhc7sqz43qxmeyc",
-          "tss": "",
           "do": "",
           "ph": "",
           "temp": ""
         },
         "bottom": {
           "turbidity": "https://public.eagle.io/public/chart/0gpnhn60rl7oiv2",
-          "tss": "",
           "do": "",
           "ph": "",
           "temp": ""
@@ -197,4 +194,3 @@
     }
   ]
 }
-
