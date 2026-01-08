@@ -20,7 +20,6 @@ function getQueryParam(key) {
    - supports either stations[].data or stations[].values
 ---------------------------- */
 function getStationFeeds(station) {
-  // Prefer "data" if present, else fall back to "values"
   return station?.data || station?.values || {};
 }
 
@@ -34,7 +33,7 @@ function labelForParam(paramKey) {
 }
 
 /* ---------------------------
-   LIVE TILES (from public/data)
+   LIVE TILES / DATA FETCH
 ---------------------------- */
 async function fetchLatestFromEagleDataUrl(dataUrl) {
   const resp = await fetch(dataUrl, { cache: "no-store" });
@@ -57,22 +56,54 @@ async function fetchLatestFromEagleDataUrl(dataUrl) {
 }
 
 function turbidityClass(value) {
-  // Placeholder thresholds
-  if (value >= 10) return "tile red";
-  if (value >= 5) return "tile amber";
-  return "tile green";
+  // Placeholder thresholds — identical to tiles
+  if (value >= 10) return "red";
+  if (value >= 5) return "amber";
+  return "green";
+}
+
+function worstClass(classes) {
+  // red > amber > green > gray
+  if (classes.includes("red")) return "red";
+  if (classes.includes("amber")) return "amber";
+  if (classes.includes("green")) return "green";
+  return "gray";
 }
 
 function formatValue(paramKey, value) {
   if (paramKey === "turbidity") return `${value.toFixed(2)} FNU`;
   if (paramKey === "temp") return `${value.toFixed(2)} °C`;
   if (paramKey === "ph") return `${value.toFixed(2)}`;
-  if (paramKey === "do") return `${value.toFixed(2)}`; // units TBD (mg/L or % sat) – keep numeric until confirmed
+  if (paramKey === "do") return `${value.toFixed(2)}`;
   return `${value.toFixed(2)}`;
 }
 
+/* ---------------------------
+   Index parameter tabs (landing page)
+   - turbidity only for now
+---------------------------- */
+function initIndexTabs() {
+  const panel = document.querySelector(".panel");
+  if (!panel) return;
+  if (document.getElementById("param-tabs")) return;
+
+  const tabs = document.createElement("div");
+  tabs.id = "param-tabs";
+  tabs.className = "param-tabs";
+  tabs.innerHTML = `
+    <button class="tab tab-active" data-param="turbidity">Turbidity (15-day median)</button>
+  `;
+
+  const h2 = panel.querySelector("h2");
+  if (h2 && h2.nextSibling) {
+    h2.parentNode.insertBefore(tabs, h2.nextSibling);
+  } else if (h2) {
+    h2.parentNode.appendChild(tabs);
+  }
+}
+
 async function renderParameterTiles(stations, paramKey) {
-  const container = document.getElementById("turbidity-tiles"); // same container on index
+  const container = document.getElementById("turbidity-tiles");
   if (!container) return;
 
   container.innerHTML = `<div class="tiles-loading">Loading ${labelForParam(paramKey)}…</div>`;
@@ -118,10 +149,9 @@ async function renderParameterTiles(stations, paramKey) {
       ? `<div class="tile-value">—</div><div class="tile-sub">No data / error</div>`
       : `<div class="tile-value">${formatValue(paramKey, t.value)}</div><div class="tile-sub">${new Date(t.timestamp).toLocaleString()}</div>`;
 
-    // Only turbidity has colour thresholds for now
     const cls = t.error
       ? "tile gray"
-      : (paramKey === "turbidity" ? turbidityClass(t.value) : "tile");
+      : (paramKey === "turbidity" ? `tile ${turbidityClass(t.value)}` : "tile");
 
     return `
       <button class="${cls}" data-station="${t.stationId}" aria-label="${title}">
@@ -140,43 +170,102 @@ async function renderParameterTiles(stations, paramKey) {
 }
 
 /* ---------------------------
-   Index parameter tabs (landing page)
-   - For now we expose turbidity only
-   - We keep DO/pH/temp hidden until client decides
+   MAP (index page) with coloured markers
+   - Colour is based on worst-case turbidity (top/bottom)
+   - Uses same turbidity thresholds as tiles
 ---------------------------- */
-function initIndexTabs() {
-  const panel = document.querySelector(".panel");
-  if (!panel) return;
+async function buildLatestTurbidityIndex(stations) {
+  // Returns a map stationId -> { top, bottom, worstClass }
+  const out = {};
 
-  // Insert a tiny tab bar under the H2 if it isn’t already there
-  const existing = document.getElementById("param-tabs");
-  if (existing) return;
+  for (const s of stations) {
+    const feeds = getStationFeeds(s);
+    const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
 
-  const tabs = document.createElement("div");
-  tabs.id = "param-tabs";
-  tabs.className = "param-tabs";
-  tabs.innerHTML = `
-    <button class="tab tab-active" data-param="turbidity">Turbidity (15-day median)</button>
-    <!-- Future options (keep commented until client confirms):
-    <button class="tab" data-param="do">DO</button>
-    <button class="tab" data-param="ph">pH</button>
-    <button class="tab" data-param="temp">Temp</button>
-    -->
-  `;
+    const perLevel = {};
+    const classes = [];
 
-  // Put tabs right after the H2
-  const h2 = panel.querySelector("h2");
-  if (h2 && h2.nextSibling) {
-    h2.parentNode.insertBefore(tabs, h2.nextSibling);
-  } else if (h2) {
-    h2.parentNode.appendChild(tabs);
+    for (const level of sensors) {
+      const url = feeds?.[level]?.turbidity || "";
+      if (!url) continue;
+
+      try {
+        const latest = await fetchLatestFromEagleDataUrl(url);
+        if (!latest) {
+          perLevel[level] = { error: true };
+          continue;
+        }
+        const cls = turbidityClass(latest.value);
+        perLevel[level] = { value: latest.value, timestamp: latest.timestamp, cls };
+        classes.push(cls);
+      } catch (e) {
+        perLevel[level] = { error: true };
+      }
+    }
+
+    out[s.id] = {
+      perLevel,
+      worst: classes.length ? worstClass(classes) : "gray"
+    };
   }
+
+  return out;
 }
 
-/* ---------------------------
-   MAP (index page)
----------------------------- */
-function initMap(stations) {
+function markerStyleForClass(cls) {
+  // Use circle markers with coloured stroke
+  // (fill kept subtle so map stays readable)
+  if (cls === "red") return { color: "rgba(255, 60, 60, 0.95)", fillColor: "rgba(255, 60, 60, 0.25)" };
+  if (cls === "amber") return { color: "rgba(255, 190, 0, 0.95)", fillColor: "rgba(255, 190, 0, 0.22)" };
+  if (cls === "green") return { color: "rgba(0, 255, 120, 0.95)", fillColor: "rgba(0, 255, 120, 0.18)" };
+  return { color: "rgba(160, 160, 160, 0.95)", fillColor: "rgba(160, 160, 160, 0.18)" };
+}
+
+function buildPopupHtml(st, turbIndex) {
+  const coords = st.coords;
+  const [lat, lon] = Array.isArray(coords) && coords.length === 2 ? coords : [null, null];
+
+  const entry = turbIndex?.[st.id];
+  const perLevel = entry?.perLevel || {};
+  const worst = entry?.worst || "gray";
+
+  const rows = [];
+
+  ["top", "bottom"].forEach(level => {
+    if (!st.sensors?.includes(level)) return;
+    const d = perLevel[level];
+    const label = level.toUpperCase();
+
+    if (!d) {
+      rows.push(`<div>${label}: <em>Not configured</em></div>`);
+      return;
+    }
+    if (d.error) {
+      rows.push(`<div>${label}: <em>No data / error</em></div>`);
+      return;
+    }
+    rows.push(`<div>${label}: <strong>${formatValue("turbidity", d.value)}</strong> <span class="small subtle">(${new Date(d.timestamp).toLocaleString()})</span></div>`);
+  });
+
+  const statusText =
+    worst === "red" ? "Exceedance (draft thresholds)" :
+    worst === "amber" ? "Alert (draft thresholds)" :
+    worst === "green" ? "Compliant (draft thresholds)" :
+    "No classification";
+
+  return `
+    <strong>${st.name}</strong><br/>
+    ${lat !== null ? `${lat.toFixed(5)}, ${lon.toFixed(5)}<br/>` : ""}
+    <div class="small subtle" style="margin-top:6px;">Turbidity (15-day median):</div>
+    ${rows.join("")}
+    <div class="small subtle" style="margin-top:6px;"><strong>Status:</strong> ${statusText}</div>
+    <div style="margin-top:8px;">
+      <a href="charts.html?station=${encodeURIComponent(st.id)}">Open charts</a>
+    </div>
+  `;
+}
+
+async function initMap(stations) {
   const mapEl = document.getElementById("map");
   if (!mapEl || typeof L === "undefined") return;
 
@@ -185,6 +274,9 @@ function initMap(stations) {
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map);
+
+  // Build turbidity index once for markers
+  const turbIndex = await buildLatestTurbidityIndex(stations);
 
   const bounds = [];
 
@@ -195,12 +287,18 @@ function initMap(stations) {
 
     bounds.push([lat, lon]);
 
-    const marker = L.marker([lat, lon]).addTo(map);
-    marker.bindPopup(`
-      <strong>${st.name}</strong><br/>
-      ${lat.toFixed(5)}, ${lon.toFixed(5)}<br/>
-      <a href="charts.html?station=${encodeURIComponent(st.id)}">Open charts</a>
-    `);
+    const cls = turbIndex?.[st.id]?.worst || "gray";
+    const style = markerStyleForClass(cls);
+
+    const marker = L.circleMarker([lat, lon], {
+      radius: 9,
+      weight: 3,
+      opacity: 1,
+      fillOpacity: 0.8,
+      ...style
+    }).addTo(map);
+
+    marker.bindPopup(buildPopupHtml(st, turbIndex));
   });
 
   if (bounds.length) map.fitBounds(bounds, { padding: [30, 30] });
@@ -247,7 +345,6 @@ function renderChartsByStation(stations, stationId) {
   for (const level of sensors) {
     const charts = s?.charts?.[level] || {};
     if (charts.turbidity) blocks.push(buildChartCard(charts.turbidity, `${s.name} – ${String(level).toUpperCase()} – Turbidity`));
-    if (charts.tss) blocks.push(buildChartCard(charts.tss, `${s.name} – ${String(level).toUpperCase()} – TSS`));
     if (charts.do) blocks.push(buildChartCard(charts.do, `${s.name} – ${String(level).toUpperCase()} – Dissolved oxygen`));
     if (charts.ph) blocks.push(buildChartCard(charts.ph, `${s.name} – ${String(level).toUpperCase()} – pH`));
     if (charts.temp) blocks.push(buildChartCard(charts.temp, `${s.name} – ${String(level).toUpperCase()} – Temperature`));
@@ -321,31 +418,14 @@ function initChartsPage(stations) {
     const stations = await loadStations();
 
     if (currentPage() === "index") {
-      initMap(stations);
       initIndexTabs();
 
-      // Landing page: show turbidity only for now
+      // Build map with coloured markers (uses turbidity data)
+      await initMap(stations);
+
+      // Landing page: turbidity tiles only
       let currentParam = "turbidity";
       await renderParameterTiles(stations, currentParam);
-
-      // Wire future tab behaviour (only turbidity exists right now)
-      const tabs = document.getElementById("param-tabs");
-      if (tabs) {
-        tabs.addEventListener("click", async (e) => {
-          const btn = e.target.closest("button[data-param]");
-          if (!btn) return;
-
-          const param = btn.getAttribute("data-param");
-          if (!param) return;
-
-          // update UI
-          tabs.querySelectorAll(".tab").forEach(b => b.classList.remove("tab-active"));
-          btn.classList.add("tab-active");
-
-          currentParam = param;
-          await renderParameterTiles(stations, currentParam);
-        });
-      }
 
       setInterval(() => renderParameterTiles(stations, currentParam), 5 * 60 * 1000);
     }
