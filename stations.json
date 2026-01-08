@@ -9,15 +9,13 @@
       "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/5vbadqk4fm4x6c0",
-          "tss": "",
+          "turbidity": "https://public.eagle.io/public/data/ete2xc0mx6doaf4",
           "do": "https://public.eagle.io/public/data/2p5jz6k3g0d3s0g",
           "ph": "https://public.eagle.io/public/data/0i3g4x1qkz0w8a1",
           "temp": "https://public.eagle.io/public/data/8k2g1c4v6n0p2h9"
         },
         "bottom": {
-          "turbidity": "https://public.eagle.io/public/data/528orugwhjb6swn",
-          "tss": "",
+          "turbidity": "https://public.eagle.io/public/data/pmjxzjva1rsodb2",
           "do": "https://public.eagle.io/public/data/6tlha99x4hll6ub",
           "ph": "https://public.eagle.io/public/data/5lnkzz1n0cx4ijm",
           "temp": "https://public.eagle.io/public/data/2v7i3f8k1m0j4g6"
@@ -26,14 +24,12 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/wceelzcnzrpyfuj",
-          "tss": "",
           "do": "",
           "ph": "",
           "temp": ""
         },
         "bottom": {
           "turbidity": "https://public.eagle.io/public/chart/6l490um3bibuprw",
-          "tss": "",
           "do": "",
           "ph": "",
           "temp": ""
@@ -49,15 +45,13 @@
       "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/7qj1m1q5t6g7j1d",
-          "tss": "",
+          "turbidity": "https://public.eagle.io/public/data/54s7uyyg15m7azf,
           "do": "https://public.eagle.io/public/data/1m4qj8v7g2h1b3d",
           "ph": "https://public.eagle.io/public/data/3x2m7v9q1k5p2t8",
           "temp": "https://public.eagle.io/public/data/9c4h1m8q2v0b7n6"
         },
         "bottom": {
-          "turbidity": "https://public.eagle.io/public/data/0v5zj2m9q4h7k1p",
-          "tss": "",
+          "turbidity": "https://public.eagle.io/public/data/8vholn2gt70l6y0",
           "do": "https://public.eagle.io/public/data/5k1m7q2v9h3b0n6",
           "ph": "https://public.eagle.io/public/data/1p9q4h7k0v5zj2m",
           "temp": "https://public.eagle.io/public/data/6n5k1m7q2v9h3b0"
@@ -66,14 +60,12 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/kcbvw7ff94ys0yb",
-          "tss": "",
           "do": "",
           "ph": "",
           "temp": ""
         },
         "bottom": {
           "turbidity": "https://public.eagle.io/public/chart/gnc70jr0xrbs4d1",
-          "tss": "",
           "do": "",
           "ph": "",
           "temp": ""
@@ -89,8 +81,7 @@
       "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/2b6m7q3v9h1k0p4",
-          "tss": "",
+          "turbidity": "https://public.eagle.io/public/data/3vg8bof90jk2n1e",
           "do": "https://public.eagle.io/public/data/8h1k0p4m2b6m7q3",
           "ph": "https://public.eagle.io/public/data/9h1k0p4mj2b6m7q",
           "temp": "https://public.eagle.io/public/data/5v9h1k0p4m2b6m7"
@@ -99,7 +90,6 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/hs9juhzrpqp2enp",
-          "tss": "",
           "do": "",
           "ph": "",
           "temp": ""
@@ -115,15 +105,13 @@
       "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/0n6k5m1q7v2h9b3",
-          "tss": "",
+          "turbidity": "https://public.eagle.io/public/data/l0lfsr2nn468t0n",
           "do": "https://public.eagle.io/public/data/7v2h9b3n0n6k5m1",
           "ph": "https://public.eagle.io/public/data/3n0n6k5m1q7v2h9",
           "temp": "https://public.eagle.io/public/data/1q7v2h9b3n0n6k5"
         },
         "bottom": {
-          "turbidity": "https://public.eagle.io/public/data/9b3n0n6k5m1q7v2",
-          "tss": "",
+          "turbidity": "https://public.eagle.io/public/data/h8ekbqbcw2f1sce",
           "do": "https://public.eagle.io/public/data/2h9b3n0n6k5m1q7",
           "ph": "https://public.eagle.io/public/data/5m1q7v2h9b3n0n6",
           "temp": "https://public.eagle.io/public/data/6k5m1q7v2h9b3n0"
@@ -132,14 +120,12 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/p7g90th1n9yzo0b",
-          "tss": "",
           "do": "",
           "ph": "",
           "temp": ""
         },
         "bottom": {
           "turbidity": "https://public.eagle.io/public/chart/3gepfuyvxzj6ocb",
-          "tss": "",
           "do": "",
           "ph": "",
           "temp": ""
@@ -155,8 +141,7 @@
       "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/4m2b6m7q3v9h1k0",
-          "tss": "",
+          "turbidity": "https://public.eagle.io/public/data/7bmgf75s61gzdqv",
           "do": "https://public.eagle.io/public/data/1k0p4m2b6m7q3v9",
           "ph": "https://public.eagle.io/public/data/7q3v9h1k0p4m2b6",
           "temp": "https://public.eagle.io/public/data/9h1k0p4m2b6m7q3"
@@ -181,15 +166,13 @@
       "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/7m2b6m7q3v9h1k0",
-          "tss": "",
+          "turbidity": "https://public.eagle.io/public/data/9u37zcagyrryelr",
           "do": "https://public.eagle.io/public/data/0p4m2b6m7q3v9h1",
           "ph": "https://public.eagle.io/public/data/3v9h1k0p4m2b6m7",
           "temp": "https://public.eagle.io/public/data/6m7q3v9h1k0p4m2"
         },
         "bottom": {
-          "turbidity": "https://public.eagle.io/public/data/0gpnhn60rl7oiv2",
-          "tss": "",
+          "turbidity": "https://public.eagle.io/public/data/6ly1vrg5fr4tb1q",
           "do": "https://public.eagle.io/public/data/5m1q7v2h9b3n0n6",
           "ph": "https://public.eagle.io/public/data/2h9b3n0n6k5m1q7",
           "temp": "https://public.eagle.io/public/data/1q7v2h9b3n0n6k5"
@@ -214,3 +197,4 @@
     }
   ]
 }
+
