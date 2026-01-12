@@ -6,6 +6,13 @@
   --border:rgba(255,255,255,.10);
   --shadow:0 10px 30px rgba(0,0,0,.35);
   --radius:14px;
+
+  /* Status colours */
+  --green: rgba(0,255,120,.95);
+  --amber: rgba(255,190,0,.95);
+  --red: rgba(255,60,60,.95);
+  --stale: rgba(154,163,178,.85);
+  --error: rgba(20,20,20,.95);
 }
 
 *{box-sizing:border-box}
@@ -76,7 +83,6 @@ h2{margin:0 0 12px 0; font-size:16px}
   padding:14px;
 }
 
-/* Header row inside panels (title left, legend right) */
 .panel-head{
   display:flex;
   align-items:flex-start;
@@ -85,6 +91,58 @@ h2{margin:0 0 12px 0; font-size:16px}
   flex-wrap:wrap;
 }
 
+/* ---------------------------
+   TOP LEGEND (status-legend)
+---------------------------- */
+.status-legend{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.05);
+}
+.status-legend__title{
+  font-size:12px;
+  font-weight:700;
+  color:var(--text);
+  opacity:.9;
+  margin-right:4px;
+}
+.status-legend__items{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.status-legend__item{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  font-size:12px;
+  color:var(--muted);
+}
+.swatch{
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  display:inline-block;
+  border:2px solid #0a0a0a;
+  box-shadow: 0 1px 8px rgba(0,0,0,.35);
+}
+.swatch--green{ background: var(--green); }
+.swatch--amber{ background: var(--amber); }
+.swatch--red{ background: var(--red); }
+.swatch--stale{ background: var(--stale); }
+.swatch--error{
+  background: rgba(154,163,178,.25);
+  border-style:dashed;
+}
+
+/* ---------------------------
+   MAP
+---------------------------- */
 #map{
   height:520px;
   border-radius:12px;
@@ -92,59 +150,7 @@ h2{margin:0 0 12px 0; font-size:16px}
   border:1px solid var(--border);
 }
 
-/* -------------------------
-   TOP LEGEND (only legend)
--------------------------- */
-.status-legend{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  padding:8px 10px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:rgba(255,255,255,.05);
-}
-
-.status-legend__title{
-  font-size:12px;
-  font-weight:700;
-  color:var(--text);
-  opacity:.92;
-}
-
-.status-legend__items{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px 14px;
-  align-items:center;
-}
-
-.status-legend__item{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  font-size:12px;
-  color:var(--muted);
-}
-
-/* Swatches used in the top legend */
-.swatch{
-  width:12px;
-  height:12px;
-  border-radius:999px;
-  display:inline-block;
-  border:2px solid #0a0a0a;
-  box-shadow: 0 1px 8px rgba(0,0,0,.35);
-}
-.swatch--green{ background: rgba(0,255,120,.85); }
-.swatch--amber{ background: rgba(255,190,0,.85); }
-.swatch--red{   background: rgba(255,60,60,.85); }
-.swatch--stale{ background: rgba(170,170,170,.80); }
-.swatch--error{ background: rgba(20,20,20,.95); }
-
-/* -------------------------
-   LEAFLET POPUP POLISH
--------------------------- */
+/* Leaflet popup polish */
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip{
   background: rgba(11,18,32,.92);
@@ -163,18 +169,15 @@ h2{margin:0 0 12px 0; font-size:16px}
   text-decoration: underline;
 }
 
-/* NOTE: We are deliberately NOT styling .map-legend anymore because we're dropping the in-map legend.
-   If your app.js still adds it, it will look basic and you’ll notice (good diagnostic). */
-
-/* -------------------------
+/* ---------------------------
    TILES
--------------------------- */
-.tiles-grid{
-  display:grid;
+---------------------------- */
+.tiles-grid {
+  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap:12px;
+  gap: 12px;
 }
-.tiles-loading{ opacity: 0.85; padding: 10px 0; }
+.tiles-loading { opacity: 0.85; padding: 10px 0; }
 
 .tile{
   border: 2px solid rgba(255,255,255,0.10);
@@ -183,47 +186,44 @@ h2{margin:0 0 12px 0; font-size:16px}
   padding: 12px 14px;
   text-align: left;
   cursor: pointer;
-  transition: transform 120ms ease, background 120ms ease;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
   color: var(--text);
 }
-.tile:hover{
-  transform: translateY(-1px);
-  background: rgba(255,255,255,0.09);
-}
+.tile:hover { transform: translateY(-1px); background: rgba(255,255,255,0.09); }
 
-.tile-title{ font-weight: 650; font-size: 13px; opacity: 0.96; }
-.tile-value{ font-size: 26px; font-weight: 750; margin-top: 6px; letter-spacing: .2px; }
-.tile-sub{ font-size: 12px; opacity: 0.78; margin-top: 2px; }
+.tile-title { font-weight: 650; font-size: 13px; opacity: 0.96; }
+.tile-value { font-size: 26px; font-weight: 750; margin-top: 6px; }
+.tile-sub { font-size: 12px; opacity: 0.75; margin-top: 2px; }
 
-/* Tile status: strong border + tinted fill (easy for public to read fast) */
-.tile.green{
-  border-color: rgba(0,255,120,.70);
-  background: rgba(0,255,120,.12);
+/* NEW tile status classes (match app.js) */
+.tile--green{
+  border-color: rgba(0,255,120,.65);
+  background: linear-gradient(180deg, rgba(0,255,120,.14), rgba(255,255,255,.05));
 }
-.tile.amber{
-  border-color: rgba(255,190,0,.75);
-  background: rgba(255,190,0,.14);
+.tile--amber{
+  border-color: rgba(255,190,0,.70);
+  background: linear-gradient(180deg, rgba(255,190,0,.16), rgba(255,255,255,.05));
 }
-.tile.red{
-  border-color: rgba(255,60,60,.80);
-  background: rgba(255,60,60,.14);
+.tile--red{
+  border-color: rgba(255,60,60,.70);
+  background: linear-gradient(180deg, rgba(255,60,60,.16), rgba(255,255,255,.05));
 }
-.tile.stale{
-  border-color: rgba(170,170,170,.80);
-  background: rgba(170,170,170,.12);
+.tile--stale{
+  border-color: rgba(154,163,178,.60);
+  background: linear-gradient(180deg, rgba(154,163,178,.14), rgba(255,255,255,.04));
 }
-.tile.error{
-  border-color: rgba(0,0,0,.95);
-  background: rgba(0,0,0,.35);
+.tile--error{
+  border-color: rgba(255,255,255,.18);
+  background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(255,255,255,.03));
 }
-.tile.error .tile-sub{ opacity: .88; }
-.tile.error .tile-value{ letter-spacing: .5px; }
+.tile--error .tile-sub{ opacity: .85; }
+.tile--error .tile-value{ letter-spacing: .5px; }
 
-/* -------------------------
-   CONTROLS (charts page)
--------------------------- */
-.controls{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
-.control{ display:flex; flex-direction:column; gap:6px; font-size:13px; opacity:.95; }
+/* ---------------------------
+   CONTROLS / CHARTS
+---------------------------- */
+.controls { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+.control { display:flex; flex-direction:column; gap:6px; font-size:13px; opacity:.95; }
 select{
   border:1px solid var(--border);
   background:rgba(255,255,255,.06);
@@ -232,22 +232,17 @@ select{
   border-radius:12px;
 }
 
-/* -------------------------
-   CHARTS
--------------------------- */
 .charts-grid{
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap:12px;
+  gap: 12px;
 }
-
 .chart-card{
   border:1px solid rgba(255,255,255,0.10);
   background:rgba(255,255,255,0.06);
   border-radius:14px;
   overflow:hidden;
 }
-
 .chart-card-head{
   display:flex;
   justify-content:space-between;
@@ -256,9 +251,7 @@ select{
   padding:10px 12px;
   border-bottom:1px solid rgba(255,255,255,0.08);
 }
-
-.chart-title{ font-weight:650; font-size:13px; opacity:.95; }
-
+.chart-title{font-weight:650; font-size:13px; opacity:.95}
 .chart-open{
   text-decoration:none;
   color:var(--text);
@@ -268,18 +261,15 @@ select{
   border-radius:999px;
   font-size:12px;
 }
-.chart-open:hover{ background:rgba(255,255,255,.10); }
-
+.chart-open:hover{background:rgba(255,255,255,.10)}
 .chart-card iframe{
   width:100%;
-  height:340px;
+  height: 340px;
   border:0;
   background:#111;
 }
 
-/* -------------------------
-   FOOTER
--------------------------- */
+/* Footer */
 .footer{
   border-top:1px solid var(--border);
   margin-top:10px;
@@ -289,22 +279,3 @@ select{
   margin:0 auto;
   padding:16px 18px;
 }
-
-/* Optional tabs (if you use them later) */
-.param-tabs{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin: 8px 0 12px 0;
-}
-.tab{
-  border:1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.06);
-  color: var(--text);
-  border-radius: 999px;
-  padding: 8px 12px;
-  cursor:pointer;
-  font-size: 13px;
-}
-.tab:hover{ background: rgba(255,255,255,0.10); }
-.tab-active{ outline: 2px solid rgba(255,255,255,0.20); }
