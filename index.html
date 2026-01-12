@@ -30,38 +30,42 @@
   </header>
 
   <main class="layout">
+
+    <!-- Turbidity tiles + legend -->
     <section class="panel">
-      <h2>Turbidity (15-day running median)</h2>
+      <div class="panel-head">
+        <div>
+          <h2>Turbidity (15-day running median)</h2>
+        </div>
+
+        <div class="status-legend" aria-label="Turbidity status legend">
+          <div class="status-legend__title">Turbidity status</div>
+          <div class="status-legend__items">
+            <span class="status-legend__item"><span class="swatch swatch--green"></span> Below trigger</span>
+            <span class="status-legend__item"><span class="swatch swatch--amber"></span> Trigger exceeded</span>
+            <span class="status-legend__item"><span class="swatch swatch--red"></span> Action level exceeded</span>
+            <span class="status-legend__item"><span class="swatch swatch--stale"></span> Stale (&gt;24h)</span>
+            <span class="status-legend__item"><span class="swatch swatch--error"></span> Error / missing</span>
+          </div>
+        </div>
+      </div>
+
       <div id="turbidity-tiles" class="tiles-grid"></div>
+
       <p class="subtle small">
         Values are the latest available for each sensor (Top/Bottom where present). Tiles and map markers use a 24-hour “stale” rule.
         Click a tile to open the charts page for that station.
       </p>
     </section>
 
-<section class="panel">
-  <div class="panel-head">
-    <div>
-      <h2>Turbidity (15-day running median)</h2>
-    </div>
-
-    <div class="status-legend" aria-label="Turbidity status legend">
-      <div class="status-legend__title">Turbidity status</div>
-      <div class="status-legend__items">
-        <span class="status-legend__item"><span class="swatch swatch--green"></span> Below trigger</span>
-        <span class="status-legend__item"><span class="swatch swatch--amber"></span> Trigger exceeded</span>
-        <span class="status-legend__item"><span class="swatch swatch--red"></span> Action level exceeded</span>
-        <span class="status-legend__item"><span class="swatch swatch--stale"></span> Stale (&gt;24h)</span>
-        <span class="status-legend__item"><span class="swatch swatch--error"></span> Error / missing</span>
-      </div>
-    </div>
-  </div>
-
-  <div id="turbidity-tiles" class="tiles-grid"></div>
-  <p class="subtle small">
-    Values are the latest available for each sensor (Top/Bottom where present). Click a tile to open the charts page for that station.
-  </p>
-</section>
+    <!-- Map -->
+    <section class="panel panel--map">
+      <h2>Site map</h2>
+      <div id="map"></div>
+      <p class="subtle small">
+        Click a marker to open the charts page for that station.
+      </p>
+    </section>
 
   </main>
 
@@ -81,4 +85,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
