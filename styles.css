@@ -76,6 +76,14 @@ h2{margin:0 0 12px 0; font-size:16px}
   padding:14px;
 }
 
+.panel-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
 #map{
   height:520px;
   border-radius:12px;
@@ -83,19 +91,46 @@ h2{margin:0 0 12px 0; font-size:16px}
   border:1px solid var(--border);
 }
 
+/* Legend */
+.legend{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.05);
+}
+.legend-item{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  font-size:12px;
+  color:var(--muted);
+}
+.legend-dot{
+  width:12px;
+  height:12px;
+  border-radius:999px;
+  display:inline-block;
+  border:2px solid #0a0a0a;
+  box-shadow: 0 1px 8px rgba(0,0,0,.35);
+}
+.legend-dot--green{ background: rgba(0,255,120,.85); }
+.legend-dot--amber{ background: rgba(255,190,0,.85); }
+.legend-dot--red{ background: rgba(255,60,60,.85); }
+.legend-dot--gray{ background: rgba(170,170,170,.75); }
+
 /* Tiles */
 .tiles-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
 }
+.tiles-loading { opacity: 0.85; padding: 10px 0; }
 
-.tiles-loading {
-  opacity: 0.85;
-  padding: 10px 0;
-}
-
-.tile {
+.tile{
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.06);
   border-radius: 14px;
@@ -192,10 +227,5 @@ select{
   cursor:pointer;
   font-size: 13px;
 }
-
 .tab:hover{ background: rgba(255,255,255,0.10); }
-
-.tab-active{
-  outline: 2px solid rgba(255,255,255,0.20);
-}
-
+.tab-active{ outline: 2px solid rgba(255,255,255,0.20); }
