@@ -39,22 +39,30 @@
       </p>
     </section>
 
-    <section class="panel panel--map">
-      <div class="panel-head">
-        <h2>Site map</h2>
-        <div class="legend" aria-label="Map legend">
-          <div class="legend-item"><span class="legend-dot legend-dot--green"></span><span>Below trigger</span></div>
-          <div class="legend-item"><span class="legend-dot legend-dot--amber"></span><span>Trigger exceeded</span></div>
-          <div class="legend-item"><span class="legend-dot legend-dot--red"></span><span>Action level exceeded</span></div>
-          <div class="legend-item"><span class="legend-dot legend-dot--gray"></span><span>Stale / no data</span></div>
-        </div>
-      </div>
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <h2>Turbidity (15-day running median)</h2>
+    </div>
 
-      <div id="map"></div>
-      <p class="subtle small">
-        Marker colour is based on the worst-case of Top/Bottom turbidity (15-day median) at each station. Click a marker to open charts.
-      </p>
-    </section>
+    <div class="status-legend" aria-label="Turbidity status legend">
+      <div class="status-legend__title">Turbidity status</div>
+      <div class="status-legend__items">
+        <span class="status-legend__item"><span class="swatch swatch--green"></span> Below trigger</span>
+        <span class="status-legend__item"><span class="swatch swatch--amber"></span> Trigger exceeded</span>
+        <span class="status-legend__item"><span class="swatch swatch--red"></span> Action level exceeded</span>
+        <span class="status-legend__item"><span class="swatch swatch--stale"></span> Stale (&gt;24h)</span>
+        <span class="status-legend__item"><span class="swatch swatch--error"></span> Error / missing</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="turbidity-tiles" class="tiles-grid"></div>
+  <p class="subtle small">
+    Values are the latest available for each sensor (Top/Bottom where present). Click a tile to open the charts page for that station.
+  </p>
+</section>
+
   </main>
 
   <footer class="footer">
@@ -73,3 +81,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+
