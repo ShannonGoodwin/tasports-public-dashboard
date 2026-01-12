@@ -1,12 +1,3 @@
-const STALE_HOURS = 24;
-
-// These are placeholder thresholds for v1 (same as tiles previously).
-// Change later once client confirms triggers.
-const THRESHOLDS = {
-  amber: 5,
-  red: 10
-};
-
 async function loadStations() {
   const res = await fetch("stations.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load stations.json");
@@ -25,10 +16,13 @@ function getQueryParam(key) {
 }
 
 /* ---------------------------
-   EAGLE PUBLIC/DATA FETCH
+   LIVE TILES (from public/data)
 ---------------------------- */
+async function fetchLatestFromEagleDataUrl(dataUrl) {
+  const resp = await fetch(dataUrl, { cache: "no-store" });
+  if (!resp.ok) throw new Error(`Fetch failed: ${resp.status} for ${dataUrl}`);
+  const text = await resp.text();
 
-function parseEagleCsvText(text) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   const dataLines = lines.filter(l => /^\d{4}-\d{2}-\d{2}T/.test(l));
   if (!dataLines.length) return null;
@@ -44,196 +38,91 @@ function parseEagleCsvText(text) {
   return { timestamp: ts, value };
 }
 
-function hoursSince(tsIso) {
-  const t = Date.parse(tsIso);
-  if (!Number.isFinite(t)) return Infinity;
-  const diffMs = Date.now() - t;
-  return diffMs / (1000 * 60 * 60);
-}
-
-function classifyValue(value) {
-  if (value >= THRESHOLDS.red) return "red";
-  if (value >= THRESHOLDS.amber) return "amber";
+function classifyTurbidity(value) {
+  // Placeholder thresholds - update once client confirms
+  if (value >= 10) return "red";
+  if (value >= 5) return "amber";
   return "green";
 }
 
-function isStale(tsIso) {
-  return hoursSince(tsIso) > STALE_HOURS;
-}
-
-async function fetchLatestFromEagleDataUrl(dataUrl) {
-  if (!dataUrl || typeof dataUrl !== "string") {
-    return { ok: false, reason: "Missing link" };
-  }
-
-  let resp;
-  try {
-    resp = await fetch(dataUrl, { cache: "no-store" });
-  } catch (e) {
-    return { ok: false, reason: "Fetch failed (network)" };
-  }
-
-  if (!resp.ok) {
-    return { ok: false, reason: `Fetch failed (HTTP ${resp.status})` };
-  }
-
-  const text = await resp.text();
-  const parsed = parseEagleCsvText(text);
-
-  if (!parsed) {
-    return { ok: false, reason: "No data returned" };
-  }
-
-  const stale = isStale(parsed.timestamp);
-  return {
-    ok: true,
-    timestamp: parsed.timestamp,
-    value: parsed.value,
-    stale
-  };
+function isStale(isoTs) {
+  if (!isoTs) return false;
+  const t = Date.parse(isoTs);
+  if (!Number.isFinite(t)) return false;
+  return (Date.now() - t) > 24 * 60 * 60 * 1000;
 }
 
 function formatFnu(value) {
   return `${value.toFixed(2)} FNU`;
 }
 
-function prettyTime(tsIso) {
-  try {
-    return new Date(tsIso).toLocaleString();
-  } catch {
-    return tsIso;
-  }
-}
-
-/* ---------------------------
-   LIVE TURBIDITY MODEL
-   Build one consistent dataset used by:
-   - tiles
-   - map marker colour
-   - popup details
----------------------------- */
-
-async function buildTurbiditySnapshot(stations) {
-  // Returns:
-  // {
-  //   perSensor: { "<stationId>:<top|bottom>": { ok, value, timestamp, stale, reason } }
-  //   perStation: { "<stationId>": { className, summaryLines[], anyOk } }
-  // }
-  const perSensor = {};
-  const perStation = {};
-
-  // Fetch sequentially (fine at 10 sensors); keeps it simple and predictable.
-  for (const s of stations) {
-    const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
-
-    for (const level of sensors) {
-      // IMPORTANT: your stations.json uses "values", not "data"
-      const url = s?.values?.[level]?.turbidity || "";
-      const key = `${s.id}:${level}`;
-
-      const r = await fetchLatestFromEagleDataUrl(url);
-      perSensor[key] = r;
-    }
-  }
-
-  // Station-level classification = worst-case across sensors.
-  for (const s of stations) {
-    const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
-    const results = sensors.map(level => ({
-      level,
-      res: perSensor[`${s.id}:${level}`]
-    }));
-
-    // If none OK => gray
-    const okResults = results.filter(x => x.res && x.res.ok && !x.res.stale);
-    const staleResults = results.filter(x => x.res && x.res.ok && x.res.stale);
-
-    let stationClass = "gray";
-    let anyOk = false;
-
-    if (okResults.length) {
-      anyOk = true;
-      // Determine worst classification among non-stale OK sensors
-      let worst = "green";
-      for (const x of okResults) {
-        const c = classifyValue(x.res.value);
-        if (c === "red") { worst = "red"; break; }
-        if (c === "amber") worst = "amber";
-      }
-      stationClass = worst;
-    } else if (staleResults.length) {
-      stationClass = "gray"; // treat stale as gray (per your requirement)
-    } else {
-      stationClass = "gray";
-    }
-
-    const summaryLines = results.map(x => {
-      const label = String(x.level).toUpperCase();
-      if (!x.res) return `${label}: — (No result)`;
-      if (!x.res.ok) return `${label}: — (${x.res.reason})`;
-      if (x.res.stale) return `${label}: ${formatFnu(x.res.value)} (STALE: ${prettyTime(x.res.timestamp)})`;
-      return `${label}: ${formatFnu(x.res.value)} (${prettyTime(x.res.timestamp)})`;
-    });
-
-    perStation[s.id] = { className: stationClass, summaryLines, anyOk };
-  }
-
-  return { perSensor, perStation };
-}
-
-/* ---------------------------
-   LIVE TILES
----------------------------- */
-
-function tileCssClassFromSensorResult(res) {
-  if (!res || !res.ok) return "tile gray";
-  if (res.stale) return "tile gray";
-  const c = classifyValue(res.value);
-  return `tile ${c}`;
-}
-
-function tileSubtitleFromSensorResult(res) {
-  if (!res || !res.ok) return res?.reason || "No data / error";
-  if (res.stale) return `STALE (> ${STALE_HOURS}h): ${prettyTime(res.timestamp)}`;
-  return prettyTime(res.timestamp);
-}
-
-async function renderTurbidityTiles(stations, snapshot) {
+async function renderTurbidityTiles(stations) {
   const container = document.getElementById("turbidity-tiles");
-  if (!container) return;
+  if (!container) return {};
 
   container.innerHTML = `<div class="tiles-loading">Loading turbidity…</div>`;
 
-  const tilesHtml = [];
+  const tiles = [];
 
   for (const s of stations) {
     const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
     for (const level of sensors) {
-      const key = `${s.id}:${level}`;
-      const res = snapshot.perSensor[key];
+      // IMPORTANT: your stations.json uses "values", not "data"
+      const url = s?.values?.[level]?.turbidity || "";
+      if (!url) {
+        tiles.push({ stationId: s.id, stationName: s.name, level, error: true, reason: "missing url" });
+        continue;
+      }
 
-      const title = `${s.name} – ${String(level).toUpperCase()}`;
-      const cls = tileCssClassFromSensorResult(res);
+      try {
+        const latest = await fetchLatestFromEagleDataUrl(url);
+        if (!latest) {
+          tiles.push({ stationId: s.id, stationName: s.name, level, error: true, reason: "no data lines" });
+          continue;
+        }
 
-      const valueHtml = (res && res.ok && !res.stale)
-        ? `<div class="tile-value">${formatFnu(res.value)}</div>`
-        : (res && res.ok && res.stale)
-          ? `<div class="tile-value">${formatFnu(res.value)}</div>`
-          : `<div class="tile-value">—</div>`;
-
-      const sub = tileSubtitleFromSensorResult(res);
-
-      tilesHtml.push(`
-        <button class="${cls}" data-station="${s.id}" aria-label="${title}">
-          <div class="tile-title">${title}</div>
-          ${valueHtml}
-          <div class="tile-sub">${sub}</div>
-        </button>
-      `);
+        tiles.push({
+          stationId: s.id,
+          stationName: s.name,
+          level,
+          value: latest.value,
+          timestamp: latest.timestamp,
+          stale: isStale(latest.timestamp),
+          error: false
+        });
+      } catch (e) {
+        console.warn(`[Tile error] ${s.name} ${level} turbidity: ${url}`, e);
+        tiles.push({ stationId: s.id, stationName: s.name, level, error: true, reason: "fetch error" });
+      }
     }
   }
 
-  container.innerHTML = tilesHtml.join("") || `<div class="tiles-loading">No turbidity links configured.</div>`;
+  if (!tiles.length) {
+    container.innerHTML = `<div class="tiles-loading">No turbidity links configured.</div>`;
+    return {};
+  }
+
+  container.innerHTML = tiles.map(t => {
+    const title = `${t.stationName} – ${String(t.level).toUpperCase()}`;
+
+    let cls = "tile gray";
+    if (!t.error) {
+      if (t.stale) cls = "tile gray"; // stale shown as grey for now
+      else cls = `tile ${classifyTurbidity(t.value)}`;
+    }
+
+    const valueHtml = t.error
+      ? `<div class="tile-value">—</div><div class="tile-sub">No data / error</div>`
+      : `<div class="tile-value">${formatFnu(t.value)}</div>
+         <div class="tile-sub">${new Date(t.timestamp).toLocaleString()}${t.stale ? " (stale)" : ""}</div>`;
+
+    return `
+      <button class="${cls}" data-station="${t.stationId}" aria-label="${title}">
+        <div class="tile-title">${title}</div>
+        ${valueHtml}
+      </button>
+    `;
+  }).join("");
 
   container.querySelectorAll("button[data-station]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -241,20 +130,23 @@ async function renderTurbidityTiles(stations, snapshot) {
       window.location.href = `charts.html?station=${encodeURIComponent(id)}`;
     });
   });
+
+  // Build summary for map colouring + popups
+  const latestByStation = {};
+  for (const t of tiles) {
+    if (!latestByStation[t.stationId]) latestByStation[t.stationId] = { levels: {} };
+    latestByStation[t.stationId].levels[t.level] = t.error
+      ? { ok: false }
+      : { ok: true, value: t.value, timestamp: t.timestamp, stale: t.stale };
+  }
+
+  return latestByStation;
 }
 
 /* ---------------------------
-   MAP (filled circle markers)
+   MAP (index page)
 ---------------------------- */
-
-function colorForClass(c) {
-  if (c === "red") return "rgba(255,60,60,0.85)";
-  if (c === "amber") return "rgba(255,190,0,0.85)";
-  if (c === "green") return "rgba(0,255,120,0.85)";
-  return "rgba(170,170,170,0.75)";
-}
-
-function initMap(stations, snapshot) {
+function initMap(stations, latestByStation = {}) {
   const mapEl = document.getElementById("map");
   if (!mapEl || typeof L === "undefined") return;
 
@@ -266,42 +158,98 @@ function initMap(stations, snapshot) {
 
   const bounds = [];
 
+  const rank = { red: 3, amber: 2, green: 1, unknown: 0 };
+
+  function stationStatus(stationId) {
+    const rec = latestByStation[stationId];
+    if (!rec || !rec.levels) return { status: "unknown", labelLines: [] };
+
+    const labelLines = [];
+    let worst = "unknown";
+    let anyError = false;
+    let anyStale = false;
+
+    for (const lvl of Object.keys(rec.levels)) {
+      const item = rec.levels[lvl];
+      if (!item || item.ok === false) {
+        anyError = true;
+        labelLines.push(`${lvl.toUpperCase()}: — (error)`);
+        continue;
+      }
+
+      const cls = classifyTurbidity(item.value);
+      if (rank[cls] > rank[worst]) worst = cls;
+
+      if (item.stale) anyStale = true;
+
+      const tsText = item.timestamp ? new Date(item.timestamp).toLocaleString() : "—";
+      labelLines.push(`${lvl.toUpperCase()}: ${item.value.toFixed(2)} FNU (${tsText}${item.stale ? ", stale" : ""})`);
+    }
+
+    if (anyError && worst === "unknown") return { status: "error", labelLines };
+    if (anyStale) return { status: "stale", labelLines };
+    return { status: worst, labelLines };
+  }
+
+  function styleFor(status) {
+    // Filled circle markers with black outline
+    if (status === "red") return { fillColor: "#ff3c3c", fillOpacity: 0.90, color: "#000", weight: 2 };
+    if (status === "amber") return { fillColor: "#ffbe00", fillOpacity: 0.90, color: "#000", weight: 2 };
+    if (status === "green") return { fillColor: "#00ff78", fillOpacity: 0.90, color: "#000", weight: 2 };
+    if (status === "stale") return { fillColor: "#9aa3b2", fillOpacity: 0.55, color: "#000", weight: 2 };
+    if (status === "error") return { fillColor: "#9aa3b2", fillOpacity: 0.25, color: "#000", weight: 2, dashArray: "4 3" };
+    return { fillColor: "#9aa3b2", fillOpacity: 0.35, color: "#000", weight: 2 };
+  }
+
   stations.forEach(st => {
     const coords = st.coords;
     if (!Array.isArray(coords) || coords.length !== 2) return;
     const [lat, lon] = coords;
+
     bounds.push([lat, lon]);
 
-    const stationInfo = snapshot?.perStation?.[st.id] || { className: "gray", summaryLines: [] };
-    const fill = colorForClass(stationInfo.className);
+    const info = stationStatus(st.id);
+    const sty = styleFor(info.status);
 
-    // Filled circle marker with black outline (much easier to see)
-    const marker = L.circleMarker([lat, lon], {
+    const dot = L.circleMarker([lat, lon], {
       radius: 9,
-      color: "#0a0a0a",      // outline
-      weight: 2,
-      fillColor: fill,
-      fillOpacity: 0.9
+      ...sty,
+      className: "marker-dot"
     }).addTo(map);
 
-    const linesHtml = (stationInfo.summaryLines || []).map(l => `${l}`).join("<br/>");
-
-    marker.bindPopup(`
+    const popupHtml = `
       <strong>${st.name}</strong><br/>
       ${lat.toFixed(5)}, ${lon.toFixed(5)}<br/><br/>
-      <span class="small subtle">Turbidity (15-day median):</span><br/>
-      ${linesHtml}<br/><br/>
+      <em>Turbidity (15-day median):</em><br/>
+      ${info.labelLines.length ? info.labelLines.join("<br/>") : "No data"}<br/><br/>
       <a href="charts.html?station=${encodeURIComponent(st.id)}">Open charts</a>
-    `);
+    `;
+
+    dot.bindPopup(popupHtml);
   });
 
   if (bounds.length) map.fitBounds(bounds, { padding: [30, 30] });
+
+  // Legend
+  const legend = L.control({ position: "bottomright" });
+  legend.onAdd = function () {
+    const div = L.DomUtil.create("div", "map-legend");
+    div.innerHTML = `
+      <div class="legend-title">Turbidity status</div>
+      <div class="legend-item"><span class="legend-swatch green"></span> Compliant</div>
+      <div class="legend-item"><span class="legend-swatch amber"></span> Alert</div>
+      <div class="legend-item"><span class="legend-swatch red"></span> Exceedance</div>
+      <div class="legend-item"><span class="legend-swatch stale"></span> Stale (&gt;24h)</div>
+      <div class="legend-item"><span class="legend-swatch error"></span> Error / missing</div>
+    `;
+    return div;
+  };
+  legend.addTo(map);
 }
 
 /* ---------------------------
    CHARTS PAGE (unchanged)
 ---------------------------- */
-
 function buildStationOptions(stations) {
   const sel = document.getElementById("stationPicker");
   if (!sel) return;
@@ -335,15 +283,14 @@ function renderChartsByStation(stations, stationId) {
 
   msg.textContent = "";
   const blocks = [];
-
   const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
+
   for (const level of sensors) {
     const charts = s?.charts?.[level] || {};
     if (charts.turbidity) blocks.push(buildChartCard(charts.turbidity, `${s.name} – ${String(level).toUpperCase()} – Turbidity`));
     if (charts.do) blocks.push(buildChartCard(charts.do, `${s.name} – ${String(level).toUpperCase()} – Dissolved oxygen`));
     if (charts.ph) blocks.push(buildChartCard(charts.ph, `${s.name} – ${String(level).toUpperCase()} – pH`));
     if (charts.temp) blocks.push(buildChartCard(charts.temp, `${s.name} – ${String(level).toUpperCase()} – Temperature`));
-    if (charts.tss) blocks.push(buildChartCard(charts.tss, `${s.name} – ${String(level).toUpperCase()} – TSS`));
   }
 
   container.innerHTML = blocks.join("") || `<div class="small subtle">No charts configured for this station yet.</div>`;
@@ -414,19 +361,11 @@ function initChartsPage(stations) {
     const stations = await loadStations();
 
     if (currentPage() === "index") {
-      // Build one turbidity snapshot, then use it for tiles + map.
-      const snapshot = await buildTurbiditySnapshot(stations);
+      const latestByStation = await renderTurbidityTiles(stations);
+      initMap(stations, latestByStation);
 
-      await renderTurbidityTiles(stations, snapshot);
-      initMap(stations, snapshot);
-
-      // refresh every 5 minutes
-      setInterval(async () => {
-        const snap = await buildTurbiditySnapshot(stations);
-        await renderTurbidityTiles(stations, snap);
-        // Map refresh is optional (Leaflet repainting markers is more work);
-        // For v1, map refresh on reload is acceptable. If you want live marker refresh, tell me.
-      }, 5 * 60 * 1000);
+      // Refresh tiles periodically (map refresh can be added later if needed)
+      setInterval(() => renderTurbidityTiles(stations), 5 * 60 * 1000);
     }
 
     if (currentPage() === "charts") {
