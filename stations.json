@@ -105,7 +105,7 @@
       "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "hhttps://public.eagle.io/public/data/l0lfsr2nn468t0n",
+          "turbidity": "https://public.eagle.io/public/data/54s7uyyg15m7azf",
           "do": "https://public.eagle.io/public/data/7v2h9b3n0n6k5m1",
           "ph": "https://public.eagle.io/public/data/3n0n6k5m1q7v2h9",
           "temp": "https://public.eagle.io/public/data/1q7v2h9b3n0n6k5"
@@ -194,4 +194,5 @@
     }
   ]
 }
+
 
