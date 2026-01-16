@@ -8,19 +8,24 @@
 </head>
 <body>
   <header class="header" id="top">
-    <div class="header__inner">
+  <div class="header__inner">
+    <div class="brand">
+      <img class="brand__logo" src="logo.png" alt="TasPorts logo" />
       <div>
-        <h1>TasPorts Dredging Program – Water Quality Dashboard</h1>
-        <p class="subtle">
+        <h1 class="brand__title">TasPorts Dredging Program – Water Quality Dashboard</h1>
+        <p class="brand__sub">
           Live charts. Data are displayed as received from telemetry systems and may be unvalidated.
         </p>
       </div>
-      <nav class="header__nav">
-        <a class="navpill" href="index.html">Map + live tiles</a>
-        <a class="navpill navpill--active" href="charts.html">Live charts</a>
-      </nav>
     </div>
-  </header>
+
+    <nav class="header__nav">
+      <a class="navpill" href="index.html">Map + live tiles</a>
+      <a class="navpill navpill--active" href="charts.html">Live charts</a>
+    </nav>
+  </div>
+  <div class="header__divider"></div>
+</header>
 
   <main class="layout">
     <section class="panel">
