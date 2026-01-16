@@ -488,45 +488,50 @@ select{
   #map{ height:460px; }
 }
 
-/* ---------------------------------
-   HARD CAP header logo size (override)
----------------------------------- */
+/* =================================
+   HEADER LOGO – FINAL SCALE
+================================= */
 
-/* If you have a brand wrapper */
-.header .brand,
-.header .brand-block{
-  display:flex;
-  align-items:center;
-  gap:12px;
+/* Keep header compact */
+.header__inner{
+  align-items: center;
+  padding: 12px 18px;
 }
 
-/* Clamp ANY image in the header */
+/* Clamp any logo image HARD */
 .header img{
-  max-height: 34px !important;
-  height: 34px !important;
+  height: 24px !important;
+  max-height: 24px !important;
   width: auto !important;
-  max-width: 220px !important;
+  max-width: 160px !important;
   object-fit: contain !important;
 }
 
-/* If you're using a specific class, keep it too */
-.header .brand__logo,
-.header .brand-logo{
-  max-height: 34px !important;
-  height: 34px !important;
+/* Safety for SVG logos */
+.header svg{
+  height: 24px !important;
+  max-height: 24px !important;
   width: auto !important;
 }
 
-/* Stop the header area growing into a billboard */
-.header__inner{
+/* Brand block alignment */
+.header .brand,
+.header .brand-block{
+  display: flex;
   align-items: center;
-  padding: 14px 18px; /* slightly tighter */
+  gap: 10px;
 }
 
-/* Keep title dominant, not the logo */
-h1{
-  font-weight: 600;
+/* Title hierarchy */
+.header h1{
   font-size: 18px;
+  font-weight: 600;
+  line-height: 1.25;
   margin: 0 0 4px 0;
 }
 
+/* Subtitle less dominant */
+.header .subtle{
+  font-size: 12px;
+  opacity: 0.8;
+}
