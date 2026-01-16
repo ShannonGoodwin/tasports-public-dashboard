@@ -79,20 +79,22 @@ body{
 }
 
 .brand__logo{
-  width:44px;
-  height:44px;
+  height:30px;        /* controls visual dominance */
+  width:auto;
   display:block;
   object-fit:contain;
-  filter: drop-shadow(0 6px 18px rgba(0,0,0,.35));
+  margin-top:2px;     /* aligns with text baseline */
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,.30));
 }
 
 .brand__title{
   margin:0 0 4px 0;
-  font-weight:700;
-  font-size:18px;
+  font-weight:600;   /* down from 700 */
+  font-size:17px;    /* down from 18 */
   letter-spacing:.1px;
-  line-height:1.15;
+  line-height:1.2;
 }
+
 
 .brand__sub{
   margin:0;
@@ -320,20 +322,23 @@ h2{margin:0 0 12px 0; font-size:16px}
 }
 
 .tile-title{
-  font-weight: 700;
-  font-size: 13px;
+  font-weight:600;       /* was 700 */
+  font-size:13px;
   color: var(--tile-title);
-  text-shadow: 0 1px 12px rgba(0,0,0,.40);
+  opacity:.95;
 }
 
+
 .tile-value{
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 26px;        /* slightly smaller */
+  font-weight: 600;      /* Calibri Semibold feel */
   margin-top: 6px;
   color: var(--tile-value);
-  letter-spacing: .2px;
-  text-shadow: 0 2px 16px rgba(0,0,0,.45);
+  letter-spacing: .1px;
+  text-shadow: 0 1px 10px rgba(0,0,0,.35);
 }
+
+
 
 .tile-sub{
   font-size: 12px;
@@ -482,3 +487,4 @@ select{
   .brand__title{ font-size:17px; }
   #map{ height:460px; }
 }
+
