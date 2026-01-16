@@ -13,22 +13,41 @@
     crossorigin=""
   />
 </head>
+
 <body>
+  <!-- =====================================================
+       HEADER / BRAND
+  ====================================================== -->
   <header class="header" id="top">
     <div class="header__inner">
-      <div>
-        <h1>TasPorts Dredging Program – Water Quality Dashboard</h1>
-        <p class="subtle">
-          Public reporting interface. Data are displayed as received from telemetry systems and may be unvalidated.
-        </p>
+
+      <!-- Brand block -->
+      <div class="header__brand">
+        <img
+          src="logo.png"
+          alt="TasPorts logo"
+          class="header__logo"
+        />
+        <div class="header__text">
+          <h1>TasPorts Dredging Program – Water Quality Dashboard</h1>
+          <p class="subtle">
+            Public reporting interface. Data are displayed as received from telemetry systems and may be unvalidated.
+          </p>
+        </div>
       </div>
+
+      <!-- Navigation -->
       <nav class="header__nav">
         <a class="navpill navpill--active" href="index.html">Map + live tiles</a>
         <a class="navpill" href="charts.html">Live charts</a>
       </nav>
+
     </div>
   </header>
 
+  <!-- =====================================================
+       MAIN CONTENT
+  ====================================================== -->
   <main class="layout">
 
     <!-- Turbidity tiles + legend -->
@@ -53,7 +72,8 @@
       <div id="turbidity-tiles" class="tiles-grid"></div>
 
       <p class="subtle small">
-        Values are the latest available for each sensor (Top/Bottom where present). Tiles and map markers use a 24-hour “stale” rule.
+        Values are the latest available for each sensor (Top/Bottom where present).
+        Tiles and map markers use a 24-hour “stale” rule.
         Click a tile to open the charts page for that station.
       </p>
     </section>
@@ -69,14 +89,21 @@
 
   </main>
 
+  <!-- =====================================================
+       FOOTER
+  ====================================================== -->
   <footer class="footer">
     <div class="footer__inner">
       <div class="small subtle">
-        Data source: Eagle.io (Xylem telemetry platform). Tiles are derived from anonymous public data links; charts are anonymous public embeds.
+        Data source: Eagle.io (Xylem telemetry platform).
+        Tiles are derived from anonymous public data links; charts are anonymous public embeds.
       </div>
     </div>
   </footer>
 
+  <!-- =====================================================
+       SCRIPTS
+  ====================================================== -->
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -85,3 +112,6 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+</html>
+
