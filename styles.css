@@ -488,3 +488,45 @@ select{
   #map{ height:460px; }
 }
 
+/* ---------------------------------
+   HARD CAP header logo size (override)
+---------------------------------- */
+
+/* If you have a brand wrapper */
+.header .brand,
+.header .brand-block{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+/* Clamp ANY image in the header */
+.header img{
+  max-height: 34px !important;
+  height: 34px !important;
+  width: auto !important;
+  max-width: 220px !important;
+  object-fit: contain !important;
+}
+
+/* If you're using a specific class, keep it too */
+.header .brand__logo,
+.header .brand-logo{
+  max-height: 34px !important;
+  height: 34px !important;
+  width: auto !important;
+}
+
+/* Stop the header area growing into a billboard */
+.header__inner{
+  align-items: center;
+  padding: 14px 18px; /* slightly tighter */
+}
+
+/* Keep title dominant, not the logo */
+h1{
+  font-weight: 600;
+  font-size: 18px;
+  margin: 0 0 4px 0;
+}
+
