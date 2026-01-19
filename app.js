@@ -1,3 +1,11 @@
+/* =========================================================
+   TasPorts Public Dashboard — app.js
+   - Dual tiles: 6-day (left) + 15-day (right)
+   - Map: black markers + permanent site name labels
+   - Calibration section: reads calibration.json (optional)
+   - Charts: raw-data embeds only (no rolling medians needed)
+========================================================= */
+
 async function loadStations() {
   const res = await fetch("stations.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load stations.json");
@@ -16,13 +24,10 @@ function getQueryParam(key) {
 }
 
 /* ---------------------------
-   LIVE DATA (from public/data)
+   LIVE DATA (public/data)
 ---------------------------- */
 async function fetchLatestFromEagleDataUrl(dataUrl) {
-  // Basic validation so bad config is clearly handled
-  if (!dataUrl || typeof dataUrl !== "string") {
-    throw new Error("Missing data URL");
-  }
+  if (!dataUrl || typeof dataUrl !== "string") throw new Error("Missing data URL");
   if (!/^https:\/\/public\.eagle\.io\/public\/data\/[a-z0-9]+/i.test(dataUrl)) {
     throw new Error(`Unexpected data URL format: ${dataUrl}`);
   }
@@ -32,12 +37,12 @@ async function fetchLatestFromEagleDataUrl(dataUrl) {
 
   const text = await resp.text();
 
-  // Expect CSV-like lines with ISO timestamp at start: 2025-12-31T12:00:00.000Z,0.72
   const lines = text
     .split(/\r?\n/)
     .map(l => l.trim())
     .filter(Boolean);
 
+  // Expect CSV-like: 2025-12-31T12:00:00.000Z,0.72
   const dataLines = lines.filter(l => /^\d{4}-\d{2}-\d{2}T/.test(l));
   if (!dataLines.length) return null;
 
@@ -52,18 +57,11 @@ async function fetchLatestFromEagleDataUrl(dataUrl) {
   return { timestamp: ts, value };
 }
 
-function classifyTurbidity(value) {
-  // Placeholder thresholds until client confirms
-  if (value >= 10) return "red";
-  if (value >= 5) return "amber";
-  return "green";
-}
-
 function isStale(isoTs) {
   if (!isoTs) return false;
   const t = Date.parse(isoTs);
   if (!Number.isFinite(t)) return false;
-  return (Date.now() - t) > 24 * 60 * 60 * 1000;
+  return Date.now() - t > 24 * 60 * 60 * 1000;
 }
 
 function formatFnu(value) {
@@ -71,97 +69,86 @@ function formatFnu(value) {
 }
 
 /* ---------------------------
-   TILES (index page)
+   THRESHOLDS (turbidity)
+   NOTE: placeholders until you replace with AMMP-derived values
+---------------------------- */
+function classifyTurbidity(value) {
+  if (value >= 10) return "red";
+  if (value >= 5) return "amber";
+  return "green";
+}
+
+/* ---------------------------
+   URL LOOKUP (6d vs 15d)
+   Stations.json will vary — so we support common keys.
+
+   Recommended stations.json format going forward:
+   values[level].turbidity_6d
+   values[level].turbidity_15d
+
+   Backwards compatible:
+   values[level].turbidity (assumed 15d)
+---------------------------- */
+function getTurbidityUrl(station, level, windowKey) {
+  const v = station?.values?.[level] || {};
+
+  // Preferred keys
+  if (windowKey === "6d") {
+    return (
+      v.turbidity_6d ||
+      v.turbidity6 ||
+      v.turbidity_6 ||
+      v.turbidity6d ||
+      v.turbidity_6day ||
+      v.turbidity6day ||
+      ""
+    );
+  }
+
+  // 15d
+  return (
+    v.turbidity_15d ||
+    v.turbidity15 ||
+    v.turbidity_15 ||
+    v.turbidity15d ||
+    v.turbidity_15day ||
+    v.turbidity15day ||
+    // Back-compat: existing turbidity link (assumed 15-day median)
+    v.turbidity ||
+    ""
+  );
+}
+
+/* ---------------------------
+   TILE RENDERING
 ---------------------------- */
 function tileClassFor(t) {
-  // Priority: error > stale > threshold colour
   if (t.error) return "tile tile--error";
   if (t.stale) return "tile tile--stale";
   const cls = classifyTurbidity(t.value);
   return `tile tile--${cls}`;
 }
 
-async function renderTurbidityTiles(stations) {
-  const container = document.getElementById("turbidity-tiles");
-  if (!container) return {};
-
-  container.innerHTML = `<div class="tiles-loading">Loading turbidity…</div>`;
-
-  const tiles = [];
-
-  for (const s of stations) {
-    const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
-
-    for (const level of sensors) {
-      const url = s?.values?.[level]?.turbidity || "";
-
-      if (!url) {
-        tiles.push({
-          stationId: s.id,
-          stationName: s.name,
-          level,
-          error: true,
-          reason: "missing turbidity URL"
-        });
-        continue;
-      }
-
-      try {
-        const latest = await fetchLatestFromEagleDataUrl(url);
-
-        if (!latest) {
-          tiles.push({
-            stationId: s.id,
-            stationName: s.name,
-            level,
-            error: true,
-            reason: "no data lines found"
-          });
-          continue;
-        }
-
-        const stale = isStale(latest.timestamp);
-
-        tiles.push({
-          stationId: s.id,
-          stationName: s.name,
-          level,
-          value: latest.value,
-          timestamp: latest.timestamp,
-          stale,
-          error: false
-        });
-      } catch (e) {
-        console.warn(`[Tile error] ${s.name} ${level} turbidity`, url, e);
-        tiles.push({
-          stationId: s.id,
-          stationName: s.name,
-          level,
-          error: true,
-          reason: e?.message || "fetch error"
-        });
-      }
-    }
+function tileValueHtml(t) {
+  if (t.error) {
+    return `<div class="tile-value">—</div><div class="tile-sub">Error / missing</div>`;
   }
+  return `<div class="tile-value">${formatFnu(t.value)}</div>
+          <div class="tile-sub">${new Date(t.timestamp).toLocaleString()}${t.stale ? " (stale)" : ""}</div>`;
+}
 
-  if (!tiles.length) {
-    container.innerHTML = `<div class="tiles-loading">No turbidity links configured.</div>`;
-    return {};
-  }
+function tileTitle(stationName, level) {
+  return `${stationName} – ${String(level).toUpperCase()}`;
+}
 
+function renderTilesInto(container, tiles) {
   container.innerHTML = tiles
     .map(t => {
-      const title = `${t.stationName} – ${String(t.level).toUpperCase()}`;
-
-      const valueHtml = t.error
-        ? `<div class="tile-value">—</div><div class="tile-sub">Error / missing</div>`
-        : `<div class="tile-value">${formatFnu(t.value)}</div>
-           <div class="tile-sub">${new Date(t.timestamp).toLocaleString()}${t.stale ? " (stale)" : ""}</div>`;
-
+      const title = tileTitle(t.stationName, t.level);
       return `
         <button class="${tileClassFor(t)}" data-station="${t.stationId}" aria-label="${title}">
           <div class="tile-title">${title}</div>
-          ${valueHtml}
+          ${tileValueHtml(t)}
         </button>
       `;
     })
@@ -173,26 +160,150 @@ async function renderTurbidityTiles(stations) {
       window.location.href = `charts.html?station=${encodeURIComponent(id)}`;
     });
   });
+}
 
-  // Build per-station summary for map popups (no colouring used on markers)
-  const latestByStation = {};
+/**
+ * Fetch + build tile records for a given window: "6d" | "15d"
+ * Returns:
+ *  - tiles[] (for rendering)
+ *  - perStationSummary (for map popups)
+ */
+async function buildTurbidityTiles(stations, windowKey) {
+  const tiles = [];
+
+  for (const s of stations) {
+    const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
+
+    for (const level of sensors) {
+      const url = getTurbidityUrl(s, level, windowKey);
+
+      if (!url) {
+        tiles.push({
+          stationId: s.id,
+          stationName: s.name,
+          level,
+          windowKey,
+          error: true,
+          reason: `missing turbidity ${windowKey} URL`
+        });
+        continue;
+      }
+
+      try {
+        const latest = await fetchLatestFromEagleDataUrl(url);
+        if (!latest) {
+          tiles.push({
+            stationId: s.id,
+            stationName: s.name,
+            level,
+            windowKey,
+            error: true,
+            reason: "no data lines found"
+          });
+          continue;
+        }
+
+        tiles.push({
+          stationId: s.id,
+          stationName: s.name,
+          level,
+          windowKey,
+          value: latest.value,
+          timestamp: latest.timestamp,
+          stale: isStale(latest.timestamp),
+          error: false
+        });
+      } catch (e) {
+        console.warn(`[Tile error] ${s.name} ${level} turbidity ${windowKey}`, url, e);
+        tiles.push({
+          stationId: s.id,
+          stationName: s.name,
+          level,
+          windowKey,
+          error: true,
+          reason: e?.message || "fetch error"
+        });
+      }
+    }
+  }
+
+  // Build per-station summary used by map popups
+  const summary = {};
   for (const t of tiles) {
-    if (!latestByStation[t.stationId]) latestByStation[t.stationId] = { levels: {} };
+    if (!summary[t.stationId]) summary[t.stationId] = { byWindow: { "6d": {}, "15d": {} } };
 
-    latestByStation[t.stationId].levels[t.level] = t.error
+    summary[t.stationId].byWindow[t.windowKey][t.level] = t.error
       ? { ok: false, reason: t.reason }
       : { ok: true, value: t.value, timestamp: t.timestamp, stale: t.stale };
   }
 
-  return latestByStation;
+  return { tiles, summary };
+}
+
+/**
+ * Renders the 6d and 15d tile panels.
+ * Supports new IDs:
+ *  - turbidity-tiles-6d
+ *  - turbidity-tiles-15d
+ * Falls back to old ID turbidity-tiles (renders 15d only) if needed.
+ */
+async function renderDualTurbidityTiles(stations) {
+  const el6 = document.getElementById("turbidity-tiles-6d");
+  const el15 = document.getElementById("turbidity-tiles-15d");
+  const legacy = document.getElementById("turbidity-tiles");
+
+  // Loading states
+  if (el6) el6.innerHTML = `<div class="tiles-loading">Loading 6-day turbidity…</div>`;
+  if (el15) el15.innerHTML = `<div class="tiles-loading">Loading 15-day turbidity…</div>`;
+  if (!el6 && !el15 && legacy) legacy.innerHTML = `<div class="tiles-loading">Loading turbidity…</div>`;
+
+  const [{ tiles: tiles6, summary: sum6 }, { tiles: tiles15, summary: sum15 }] = await Promise.all([
+    buildTurbidityTiles(stations, "6d"),
+    buildTurbidityTiles(stations, "15d")
+  ]);
+
+  // Render
+  if (el6) {
+    if (!tiles6.length) el6.innerHTML = `<div class="tiles-loading">No 6-day links configured.</div>`;
+    else renderTilesInto(el6, tiles6);
+  }
+
+  if (el15) {
+    if (!tiles15.length) el15.innerHTML = `<div class="tiles-loading">No 15-day links configured.</div>`;
+    else renderTilesInto(el15, tiles15);
+  }
+
+  if (!el6 && !el15 && legacy) {
+    // legacy layout: show 15d only
+    if (!tiles15.length) legacy.innerHTML = `<div class="tiles-loading">No turbidity links configured.</div>`;
+    else renderTilesInto(legacy, tiles15);
+  }
+
+  // Merge summaries into one object per stationId
+  const merged = {};
+  for (const sid of new Set([...Object.keys(sum6), ...Object.keys(sum15)])) {
+    merged[sid] = {
+      byWindow: {
+        "6d": sum6?.[sid]?.byWindow?.["6d"] || {},
+        "15d": sum15?.[sid]?.byWindow?.["15d"] || {}
+      }
+    };
+  }
+
+  return merged;
 }
 
 /* ---------------------------
    MAP (index page)
+   - black markers
+   - permanent site name labels
+   - popups show 6d + 15d values (if available)
 ---------------------------- */
-function initMap(stations, latestByStation = {}) {
+let __mapState = null;
+
+function initMap(stations) {
   const mapEl = document.getElementById("map");
-  if (!mapEl || typeof L === "undefined") return;
+  if (!mapEl || typeof L === "undefined") return null;
 
   const map = L.map("map", { scrollWheelZoom: false });
 
@@ -201,67 +312,146 @@ function initMap(stations, latestByStation = {}) {
   }).addTo(map);
 
   const bounds = [];
-
-  function popupLinesForStation(stationId) {
-    const rec = latestByStation[stationId];
-    if (!rec || !rec.levels) return ["No data"];
-
-    const lines = [];
-    for (const lvl of Object.keys(rec.levels)) {
-      const item = rec.levels[lvl];
-
-      if (!item || item.ok === false) {
-        lines.push(`${lvl.toUpperCase()}: — (error${item?.reason ? `: ${item.reason}` : ""})`);
-        continue;
-      }
-
-      const tsText = item.timestamp ? new Date(item.timestamp).toLocaleString() : "—";
-      lines.push(
-        `${lvl.toUpperCase()}: ${item.value.toFixed(2)} FNU (${tsText}${item.stale ? ", stale" : ""})`
-      );
-    }
-    return lines.length ? lines : ["No data"];
-  }
+  const markers = {}; // stationId -> marker
 
   stations.forEach(st => {
     const coords = st.coords;
     if (!Array.isArray(coords) || coords.length !== 2) return;
-    const [lat, lon] = coords;
 
+    const [lat, lon] = coords;
     bounds.push([lat, lon]);
 
-    // BLACK markers for all sites (stakeholder requirement)
-    const dot = L.circleMarker([lat, lon], {
-      radius: 9,
+    const marker = L.circleMarker([lat, lon], {
+      radius: 8,
       fillColor: "#000",
-      fillOpacity: 0.85,
-      color: "#fff",      // white outline to stand out on map
+      fillOpacity: 0.82,
+      color: "#fff",
       weight: 2
     }).addTo(map);
 
-    const lines = popupLinesForStation(st.id);
+    // Permanent site name labels (site-level, not depth-level)
+    marker.bindTooltip(st.name, {
+      permanent: true,
+      direction: "right",
+      offset: [8, 0],
+      className: "map-label",
+      opacity: 0.95
+    });
 
-    const popupHtml = `
-      <strong>${st.name}</strong><br/>
-      ${lat.toFixed(5)}, ${lon.toFixed(5)}<br/><br/>
-      <em>Turbidity (15-day median):</em><br/>
-      ${lines.join("<br/>")}<br/><br/>
-      <a href="charts.html?station=${encodeURIComponent(st.id)}">Open charts</a>
-    `;
-
-    dot.bindPopup(popupHtml);
+    markers[st.id] = marker;
   });
 
   if (bounds.length) map.fitBounds(bounds, { padding: [30, 30] });
+
+  return { map, markers };
+}
+
+function popupHtmlForStation(station, stationSummary) {
+  const { name, id, coords } = station;
+  const [lat, lon] = Array.isArray(coords) && coords.length === 2 ? coords : [null, null];
+
+  function linesFor(windowKey, label) {
+    const rec = stationSummary?.byWindow?.[windowKey] || {};
+    const lvls = Object.keys(rec);
+
+    if (!lvls.length) return [`<span class="subtle small">${label}: not configured</span>`];
+
+    const out = [];
+    for (const lvl of lvls) {
+      const item = rec[lvl];
+      if (!item || item.ok === false) {
+        out.push(`${lvl.toUpperCase()}: — (error${item?.reason ? `: ${item.reason}` : ""})`);
+        continue;
+      }
+      const tsText = item.timestamp ? new Date(item.timestamp).toLocaleString() : "—";
+      out.push(`${lvl.toUpperCase()}: ${item.value.toFixed(2)} FNU (${tsText}${item.stale ? ", stale" : ""})`);
+    }
+    return out;
+  }
+
+  const block6 = linesFor("6d", "6-day rolling median");
+  const block15 = linesFor("15d", "15-day rolling median");
+
+  return `
+    <strong>${name}</strong><br/>
+    ${lat != null ? `${lat.toFixed(5)}, ${lon.toFixed(5)}<br/><br/>` : "<br/>"}
+    <em>Turbidity:</em><br/>
+    <span class="small subtle">6-day rolling median</span><br/>
+    ${block6.join("<br/>")}<br/><br/>
+    <span class="small subtle">15-day rolling median</span><br/>
+    ${block15.join("<br/>")}<br/><br/>
+    <a href="charts.html?station=${encodeURIComponent(id)}">Open charts</a>
+  `;
+}
+
+function updateMapPopups(stations, summaryByStation) {
+  if (!__mapState) return;
+  const { markers } = __mapState;
+
+  stations.forEach(st => {
+    const marker = markers[st.id];
+    if (!marker) return;
+
+    const popupHtml = popupHtmlForStation(st, summaryByStation?.[st.id]);
+    marker.bindPopup(popupHtml);
+  });
 }
 
 /* ---------------------------
-   CHARTS PAGE (unchanged)
+   CALIBRATION SECTION (optional)
+   Expects calibration.json (optional).
+   index.html should include:
+     <div id="calibration-table"></div>
+---------------------------- */
+async function renderCalibrationTable() {
+  const host = document.getElementById("calibration-table");
+  if (!host) return;
+
+  try {
+    const res = await fetch("calibration.json", { cache: "no-store" });
+    if (!res.ok) {
+      host.innerHTML = `<div class="small subtle">Calibration dates are not available.</div>`;
+      return;
+    }
+    const data = await res.json();
+    const sites = data?.sites || {};
+
+    const rows = Object.entries(sites)
+      .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
+      .map(([site, date]) => `<tr><td>${escapeHtml(site)}</td><td>${escapeHtml(date)}</td></tr>`)
+      .join("");
+
+    host.innerHTML = rows
+      ? `
+        <table class="cal-table">
+          <thead><tr><th>Site</th><th>Last calibration</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        ${data?.last_updated ? `<div class="small subtle" style="margin-top:8px;">Last updated: ${escapeHtml(data.last_updated)}</div>` : ""}
+      `
+      : `<div class="small subtle">Calibration dates are not configured.</div>`;
+  } catch (e) {
+    console.warn("Calibration table load failed:", e);
+    host.innerHTML = `<div class="small subtle">Calibration dates are not available.</div>`;
+  }
+}
+
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/* ---------------------------
+   CHARTS PAGE (raw-data embeds)
 ---------------------------- */
 function buildStationOptions(stations) {
   const sel = document.getElementById("stationPicker");
   if (!sel) return;
-  sel.innerHTML = stations.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
+  sel.innerHTML = stations.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("");
 }
 
 function buildChartCard(url, title) {
@@ -269,7 +459,7 @@ function buildChartCard(url, title) {
   return `
     <div class="chart-card">
       <div class="chart-card-head">
-        <div class="chart-title">${title}</div>
+        <div class="chart-title">${escapeHtml(title)}</div>
         <a class="chart-open" href="${url}" target="_blank" rel="noopener noreferrer">Open</a>
       </div>
       <iframe src="${url}" loading="lazy" referrerpolicy="no-referrer"></iframe>
@@ -295,10 +485,12 @@ function renderChartsByStation(stations, stationId) {
 
   for (const level of sensors) {
     const charts = s?.charts?.[level] || {};
-    if (charts.turbidity) blocks.push(buildChartCard(charts.turbidity, `${s.name} – ${String(level).toUpperCase()} – Turbidity`));
-    if (charts.do) blocks.push(buildChartCard(charts.do, `${s.name} – ${String(level).toUpperCase()} – Dissolved oxygen`));
-    if (charts.ph) blocks.push(buildChartCard(charts.ph, `${s.name} – ${String(level).toUpperCase()} – pH`));
-    if (charts.temp) blocks.push(buildChartCard(charts.temp, `${s.name} – ${String(level).toUpperCase()} – Temperature`));
+    // Titles explicitly say "Raw"
+    if (charts.turbidity) blocks.push(buildChartCard(charts.turbidity, `${s.name} – ${String(level).toUpperCase()} – Turbidity (raw)`));
+    if (charts.tss) blocks.push(buildChartCard(charts.tss, `${s.name} – ${String(level).toUpperCase()} – TSS (raw)`));
+    if (charts.do) blocks.push(buildChartCard(charts.do, `${s.name} – ${String(level).toUpperCase()} – Dissolved oxygen (raw)`));
+    if (charts.ph) blocks.push(buildChartCard(charts.ph, `${s.name} – ${String(level).toUpperCase()} – pH (raw)`));
+    if (charts.temp) blocks.push(buildChartCard(charts.temp, `${s.name} – ${String(level).toUpperCase()} – Temperature (raw)`));
   }
 
   container.innerHTML = blocks.join("") || `<div class="small subtle">No charts configured for this station yet.</div>`;
@@ -321,8 +513,9 @@ function renderChartsByParameter(stations, paramKey) {
       let label = paramKey.toUpperCase();
       if (paramKey === "do") label = "Dissolved oxygen";
       if (paramKey === "temp") label = "Temperature";
+      if (paramKey === "turbidity") label = "Turbidity";
 
-      blocks.push(buildChartCard(url, `${s.name} – ${String(level).toUpperCase()} – ${label}`));
+      blocks.push(buildChartCard(url, `${s.name} – ${String(level).toUpperCase()} – ${label} (raw)`));
     }
   }
 
@@ -369,12 +562,23 @@ function initChartsPage(stations) {
     const stations = await loadStations();
 
     if (currentPage() === "index") {
-      const latestByStation = await renderTurbidityTiles(stations);
-      initMap(stations, latestByStation);
+      // Init map once
+      __mapState = initMap(stations);
 
-      // Refresh tiles periodically.
-      // If you want popups to stay current too, we can re-init the map on refresh later.
-      setInterval(() => renderTurbidityTiles(stations), 5 * 60 * 1000);
+      // Tiles (6d + 15d)
+      const summaryByStation = await renderDualTurbidityTiles(stations);
+
+      // Popups show both windows if available
+      updateMapPopups(stations, summaryByStation);
+
+      // Calibration section (optional)
+      await renderCalibrationTable();
+
+      // Refresh tiles periodically + update popups
+      setInterval(async () => {
+        const sum = await renderDualTurbidityTiles(stations);
+        updateMapPopups(stations, sum);
+      }, 5 * 60 * 1000);
     }
 
     if (currentPage() === "charts") {
@@ -382,9 +586,18 @@ function initChartsPage(stations) {
     }
   } catch (err) {
     console.error(err);
-    const tiles = document.getElementById("turbidity-tiles");
-    if (tiles) tiles.innerHTML = `<div class="tiles-loading">Failed to load configuration. Check stations.json.</div>`;
+
+    // Updated: support new container IDs + legacy
+    const el6 = document.getElementById("turbidity-tiles-6d");
+    const el15 = document.getElementById("turbidity-tiles-15d");
+    const legacy = document.getElementById("turbidity-tiles");
+    const msg = "Failed to load configuration. Check stations.json.";
+
+    if (el6) el6.innerHTML = `<div class="tiles-loading">${msg}</div>`;
+    if (el15) el15.innerHTML = `<div class="tiles-loading">${msg}</div>`;
+    if (!el6 && !el15 && legacy) legacy.innerHTML = `<div class="tiles-loading">${msg}</div>`;
+
     const chartsMsg = document.getElementById("chartsMsg");
-    if (chartsMsg) chartsMsg.textContent = "Failed to load configuration. Check stations.json.";
+    if (chartsMsg) chartsMsg.textContent = msg;
   }
 })();
