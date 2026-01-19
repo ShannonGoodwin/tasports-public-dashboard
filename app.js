@@ -79,11 +79,6 @@ function classifyTurbidity(value) {
 
 /* ---------------------------
    URL LOOKUP (6d vs 15d)
-   Recommended stations.json format:
-     values[level].turbidity_6d
-     values[level].turbidity_15d
-   Backwards compatible:
-     values[level].turbidity (assumed 15d)
 ---------------------------- */
 function getTurbidityUrl(station, level, windowKey) {
   const v = station?.values?.[level] || {};
@@ -301,12 +296,18 @@ function initMap(stations) {
       weight: 2
     }).addTo(map);
 
-    marker.bindTooltip(st.name, {
+    marker.bindTooltip(escapeHtml(st.name), {
       permanent: true,
       direction: "right",
       offset: [8, 0],
       className: "map-label",
       opacity: 0.95
+    });
+
+    // Prevent tooltip from stealing pointer events
+    marker.on("tooltipopen", (e) => {
+      const el = e.tooltip.getElement();
+      if (el) el.style.pointerEvents = "none";
     });
 
     markers[st.id] = marker;
@@ -323,7 +324,12 @@ function popupHtmlForStation(station, stationSummary) {
 
   function linesFor(windowKey, label) {
     const rec = stationSummary?.byWindow?.[windowKey] || {};
-    const lvls = Object.keys(rec);
+
+    // enforce TOP then BOTTOM ordering (then anything else)
+    const preferred = ["top", "bottom"];
+    const lvls = preferred.filter(k => rec[k]).concat(
+      Object.keys(rec).filter(k => !preferred.includes(k))
+    );
 
     if (!lvls.length) return [`<span class="subtle small">${escapeHtml(label)}: not configured</span>`];
 
@@ -370,9 +376,6 @@ function updateMapPopups(stations, summaryByStation) {
 
 /* ---------------------------
    CALIBRATION SECTION
-   Supports either:
-   A) { "items":[ {station, sensor, last_calibrated, notes} ], "last_updated":"..." }
-   B) { "sites": { "Forth":"2026-01-05", ... }, "last_updated":"..." }
 ---------------------------- */
 async function renderCalibrationTable() {
   const host = document.getElementById("calibration-table");
@@ -387,7 +390,6 @@ async function renderCalibrationTable() {
 
     const data = await res.json();
 
-    // Preferred: items[]
     if (Array.isArray(data?.items)) {
       const rows = data.items
         .slice()
@@ -420,7 +422,6 @@ async function renderCalibrationTable() {
       return;
     }
 
-    // Back-compat: sites{}
     const sites = data?.sites || {};
     const rows = Object.entries(sites)
       .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
