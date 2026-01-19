@@ -5,17 +5,19 @@
       "name": "Forth",
       "coords": [-41.15173, 146.22795],
       "sensors": ["top", "bottom"],
-      "status": "Compliant",
-      "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/ete2xc0mx6doaf4",
+          "turbidity_raw": "https://public.eagle.io/public/data/ete2xc0mx6doaf4",
+          "turbidity_6d": "",
+          "turbidity_15d": "",
           "do": "https://public.eagle.io/public/data/2p5jz6k3g0d3s0g",
           "ph": "https://public.eagle.io/public/data/0i3g4x1qkz0w8a1",
           "temp": "https://public.eagle.io/public/data/8k2g1c4v6n0p2h9"
         },
         "bottom": {
-          "turbidity": "https://public.eagle.io/public/data/pmjxzjva1rsodb2",
+          "turbidity_raw": "https://public.eagle.io/public/data/pmjxzjva1rsodb2",
+          "turbidity_6d": "",
+          "turbidity_15d": "",
           "do": "https://public.eagle.io/public/data/6tlha99x4hll6ub",
           "ph": "https://public.eagle.io/public/data/5lnkzz1n0cx4ijm",
           "temp": "https://public.eagle.io/public/data/2v7i3f8k1m0j4g6"
@@ -41,17 +43,19 @@
       "name": "Offshore",
       "coords": [-41.06578, 146.33923],
       "sensors": ["top", "bottom"],
-      "status": "Compliant",
-      "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/54s7uyyg15m7azf",
+          "turbidity_raw": "https://public.eagle.io/public/data/54s7uyyg15m7azf",
+          "turbidity_6d": "",
+          "turbidity_15d": "",
           "do": "https://public.eagle.io/public/data/1m4qj8v7g2h1b3d",
           "ph": "https://public.eagle.io/public/data/3x2m7v9q1k5p2t8",
           "temp": "https://public.eagle.io/public/data/9c4h1m8q2v0b7n6"
         },
         "bottom": {
-          "turbidity": "https://public.eagle.io/public/data/8vholn2gt70l6y0",
+          "turbidity_raw": "https://public.eagle.io/public/data/8vholn2gt70l6y0",
+          "turbidity_6d": "",
+          "turbidity_15d": "",
           "do": "https://public.eagle.io/public/data/5k1m7q2v9h3b0n6",
           "ph": "https://public.eagle.io/public/data/1p9q4h7k0v5zj2m",
           "temp": "https://public.eagle.io/public/data/6n5k1m7q2v9h3b0"
@@ -77,11 +81,11 @@
       "name": "Estuary Mouth",
       "coords": [-41.16385, 146.37743],
       "sensors": ["top"],
-      "status": "Compliant",
-      "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/3vg8bof90jk2n1e",
+          "turbidity_raw": "https://public.eagle.io/public/data/3vg8bof90jk2n1e",
+          "turbidity_6d": "",
+          "turbidity_15d": "",
           "do": "https://public.eagle.io/public/data/8h1k0p4m2b6m7q3",
           "ph": "https://public.eagle.io/public/data/9h1k0p4mj2b6m7q",
           "temp": "https://public.eagle.io/public/data/5v9h1k0p4m2b6m7"
@@ -101,17 +105,19 @@
       "name": "Scallops",
       "coords": [-41.10908, 146.43819],
       "sensors": ["top", "bottom"],
-      "status": "Compliant",
-      "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/54s7uyyg15m7azf",
+          "turbidity_raw": "https://public.eagle.io/public/data/54s7uyyg15m7azf",
+          "turbidity_6d": "",
+          "turbidity_15d": "",
           "do": "https://public.eagle.io/public/data/7v2h9b3n0n6k5m1",
           "ph": "https://public.eagle.io/public/data/3n0n6k5m1q7v2h9",
           "temp": "https://public.eagle.io/public/data/1q7v2h9b3n0n6k5"
         },
         "bottom": {
-          "turbidity": "https://public.eagle.io/public/data/h8ekbqbcw2f1sce",
+          "turbidity_raw": "https://public.eagle.io/public/data/h8ekbqbcw2f1sce",
+          "turbidity_6d": "",
+          "turbidity_15d": "",
           "do": "https://public.eagle.io/public/data/2h9b3n0n6k5m1q7",
           "ph": "https://public.eagle.io/public/data/5m1q7v2h9b3n0n6",
           "temp": "https://public.eagle.io/public/data/6k5m1q7v2h9b3n0"
@@ -137,11 +143,11 @@
       "name": "Grayling",
       "coords": [-41.208912, 146.372452],
       "sensors": ["top"],
-      "status": "Compliant",
-      "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/7bmgf75s61gzdqv",
+          "turbidity_raw": "https://public.eagle.io/public/data/7bmgf75s61gzdqv",
+          "turbidity_6d": "",
+          "turbidity_15d": "",
           "do": "https://public.eagle.io/public/data/1k0p4m2b6m7q3v9",
           "ph": "https://public.eagle.io/public/data/7q3v9h1k0p4m2b6",
           "temp": "https://public.eagle.io/public/data/9h1k0p4m2b6m7q3"
@@ -161,17 +167,19 @@
       "name": "Seagrass",
       "coords": [-41.1614, 146.3944],
       "sensors": ["top", "bottom"],
-      "status": "Compliant",
-      "lastSampleText": "Auto from data feed",
       "values": {
         "top": {
-          "turbidity": "https://public.eagle.io/public/data/9u37zcagyrryelr",
+          "turbidity_raw": "https://public.eagle.io/public/data/9u37zcagyrryelr",
+          "turbidity_6d": "",
+          "turbidity_15d": "",
           "do": "https://public.eagle.io/public/data/0p4m2b6m7q3v9h1",
           "ph": "https://public.eagle.io/public/data/3v9h1k0p4m2b6m7",
           "temp": "https://public.eagle.io/public/data/6m7q3v9h1k0p4m2"
         },
         "bottom": {
-          "turbidity": "https://public.eagle.io/public/data/6ly1vrg5fr4tb1q",
+          "turbidity_raw": "https://public.eagle.io/public/data/6ly1vrg5fr4tb1q",
+          "turbidity_6d": "",
+          "turbidity_15d": "",
           "do": "https://public.eagle.io/public/data/5m1q7v2h9b3n0n6",
           "ph": "https://public.eagle.io/public/data/2h9b3n0n6k5m1q7",
           "temp": "https://public.eagle.io/public/data/1q7v2h9b3n0n6k5"
@@ -194,5 +202,3 @@
     }
   ]
 }
-
-
