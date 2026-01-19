@@ -14,9 +14,13 @@ async function loadStations() {
 }
 
 function currentPage() {
-  const p = (window.location.pathname || "").toLowerCase();
-  if (p.endsWith("/charts.html")) return "charts";
-  if (p.endsWith("/calibration.html")) return "calibration";
+  // Netlify / links may use "pretty" routes like /charts or /calibration
+  // We accept both /charts(.html) and /calibration(.html)
+  const raw = (window.location.pathname || "").toLowerCase();
+  const p = raw.endsWith("/") ? raw.slice(0, -1) : raw;
+
+  if (p.endsWith("/charts.html") || p.endsWith("/charts")) return "charts";
+  if (p.endsWith("/calibration.html") || p.endsWith("/calibration")) return "calibration";
   return "index";
 }
 
