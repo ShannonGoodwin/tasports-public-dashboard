@@ -258,6 +258,36 @@ h2{margin:0 0 12px 0; font-size:16px}
   background: rgba(0,0,0,.18);
 }
 
+.map-label{
+  background: rgba(7,16,26,.78);
+  border: 1px solid rgba(255,255,255,.16);
+  color: rgba(255,255,255,.92);
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+
+.cal-table table{
+  width:100%;
+  border-collapse: collapse;
+}
+
+.cal-table th, .cal-table td{
+  text-align:left;
+  padding:10px 10px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  font-size: 13px;
+  color: rgba(255,255,255,.90);
+}
+
+.cal-table th{
+  color: rgba(255,255,255,.82);
+  font-weight: 700;
+}
+
+
 /* Optional: slightly mute the basemap so markers + overlays read better */
 #map .leaflet-tile{
   filter: saturate(.85) contrast(1.02) brightness(.98);
@@ -535,3 +565,4 @@ select{
   font-size: 12px;
   opacity: 0.8;
 }
+
