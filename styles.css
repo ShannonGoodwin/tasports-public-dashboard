@@ -269,7 +269,7 @@ h2{margin:0 0 12px 0; font-size:16px}
   box-shadow: 0 6px 18px rgba(0,0,0,.25);
 }
 
-.cal-table table{
+.cal-table{
   width:100%;
   border-collapse: collapse;
 }
@@ -325,6 +325,32 @@ h2{margin:0 0 12px 0; font-size:16px}
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
+}
+
+/* Split turbidity tiles into left/right panels (6d vs 15d) */
+.tiles-split{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items:start;
+}
+
+.tiles-panel{
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+}
+
+.tiles-panel__title{
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,.86);
+  margin: 0 0 10px 0;
+}
+
+@media (max-width: 900px){
+  .tiles-split{ grid-template-columns: 1fr; }
 }
 
 .tiles-loading{
@@ -507,6 +533,16 @@ select{
   color: var(--muted-2);
 }
 
+.footer__link{
+  color: rgba(159,195,255,.95);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(159,195,255,.35);
+}
+
+.footer__link:hover{
+  border-bottom-color: rgba(159,195,255,.75);
+}
+
 /* ---------------------------
    RESPONSIVE
 ---------------------------- */
@@ -565,4 +601,3 @@ select{
   font-size: 12px;
   opacity: 0.8;
 }
-
