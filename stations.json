@@ -7,7 +7,6 @@
       "sensors": ["top", "bottom"],
       "values": {
         "top": {
-          "turbidity_raw": "",
           "turbidity_6d": "https://public.eagle.io/public/data/yh9d0j0fcgegp2t",
           "turbidity_15d": "https://public.eagle.io/public/data/ete2xc0mx6doaf4",
           "do": "https://public.eagle.io/public/data/2p5jz6k3g0d3s0g",
@@ -15,7 +14,6 @@
           "temp": "https://public.eagle.io/public/data/8k2g1c4v6n0p2h9"
         },
         "bottom": {
-          "turbidity_raw": "",
           "turbidity_6d": "https://public.eagle.io/public/data/zow2yim1avbotyf",
           "turbidity_15d": "https://public.eagle.io/public/data/pmjxzjva1rsodb2",
           "do": "https://public.eagle.io/public/data/6tlha99x4hll6ub",
@@ -45,7 +43,6 @@
       "sensors": ["top", "bottom"],
       "values": {
         "top": {
-          "turbidity_raw": "",
           "turbidity_6d": "https://public.eagle.io/public/data/o7k19zx7649izo5",
           "turbidity_15d": "https://public.eagle.io/public/data/54s7uyyg15m7azf",
           "do": "https://public.eagle.io/public/data/1m4qj8v7g2h1b3d",
@@ -53,7 +50,6 @@
           "temp": "https://public.eagle.io/public/data/9c4h1m8q2v0b7n6"
         },
         "bottom": {
-          "turbidity_raw": "",
           "turbidity_6d": "https://public.eagle.io/public/data/1no75xaxq9jr91k",
           "turbidity_15d": "https://public.eagle.io/public/data/8vholn2gt70l6y0",
           "do": "https://public.eagle.io/public/data/5k1m7q2v9h3b0n6",
@@ -64,7 +60,7 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/kcbvw7ff94ys0yb",
-          "do": "https://public.eagle.io/public/chart/dpjeq0o2qtzn4rg  ",
+          "do": "https://public.eagle.io/public/chart/dpjeq0o2qtzn4rg",
           "ph": "https://public.eagle.io/public/chart/9yvo43lgjvenlmy",
           "temp": "https://public.eagle.io/public/chart/pg41vvv2c96qknm"
         },
@@ -83,7 +79,6 @@
       "sensors": ["top"],
       "values": {
         "top": {
-          "turbidity_raw": "",
           "turbidity_6d": "https://public.eagle.io/public/data/10kbdnv4ws1ofn2",
           "turbidity_15d": "https://public.eagle.io/public/data/3vg8bof90jk2n1e",
           "do": "https://public.eagle.io/public/data/8h1k0p4m2b6m7q3",
@@ -107,7 +102,6 @@
       "sensors": ["top", "bottom"],
       "values": {
         "top": {
-          "turbidity_raw": "",
           "turbidity_6d": "https://public.eagle.io/public/data/1wau8dc9x6kosz0",
           "turbidity_15d": "https://public.eagle.io/public/data/l0lfsr2nn468t0n",
           "do": "https://public.eagle.io/public/data/7v2h9b3n0n6k5m1",
@@ -115,7 +109,6 @@
           "temp": "https://public.eagle.io/public/data/1q7v2h9b3n0n6k5"
         },
         "bottom": {
-          "turbidity_raw": "",
           "turbidity_6d": "https://public.eagle.io/public/data/e7h7zmnbnxd5neu",
           "turbidity_15d": "https://public.eagle.io/public/data/h8ekbqbcw2f1sce",
           "do": "https://public.eagle.io/public/data/2h9b3n0n6k5m1q7",
@@ -128,7 +121,7 @@
           "turbidity": "https://public.eagle.io/public/chart/p7g90th1n9yzo0b",
           "do": "https://public.eagle.io/public/chart/i93yg2rrqrv20eo",
           "ph": "https://public.eagle.io/public/chart/2jg4qkz481jvj72",
-          "temp": "https://public.eagle.io/public/chart/twdwntgdga5c09o"
+          "temp": "https://public.eagle.io/public/chart/918il1ttax21pcs"
         },
         "bottom": {
           "turbidity": "https://public.eagle.io/public/chart/3gepfuyvxzj6ocb",
@@ -145,7 +138,6 @@
       "sensors": ["top"],
       "values": {
         "top": {
-          "turbidity_raw": "",
           "turbidity_6d": "https://public.eagle.io/public/data/nll3so0q9yvglq2",
           "turbidity_15d": "https://public.eagle.io/public/data/7bmgf75s61gzdqv",
           "do": "https://public.eagle.io/public/data/1k0p4m2b6m7q3v9",
@@ -169,7 +161,6 @@
       "sensors": ["top", "bottom"],
       "values": {
         "top": {
-          "turbidity_raw": "",
           "turbidity_6d": "https://public.eagle.io/public/data/h4vhm7oa9wmxium",
           "turbidity_15d": "https://public.eagle.io/public/data/9u37zcagyrryelr",
           "do": "https://public.eagle.io/public/data/0p4m2b6m7q3v9h1",
@@ -177,7 +168,6 @@
           "temp": "https://public.eagle.io/public/data/6m7q3v9h1k0p4m2"
         },
         "bottom": {
-          "turbidity_raw": "",
           "turbidity_6d": "https://public.eagle.io/public/data/81qmd3ne3dzkoa1",
           "turbidity_15d": "https://public.eagle.io/public/data/6ly1vrg5fr4tb1q",
           "do": "https://public.eagle.io/public/data/5m1q7v2h9b3n0n6",
@@ -202,5 +192,6 @@
     }
   ]
 }
+
 
 
