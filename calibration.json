@@ -5,6 +5,16 @@
     { "station": "forth", "sensor": "bottom", "last_calibrated": "2026-01-05", "notes": "" },
 
     { "station": "offshore", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
-    { "station": "offshore", "sensor": "bottom", "last_calibrated": "", "notes": "TBC" }
+    { "station": "offshore", "sensor": "bottom", "last_calibrated": "", "notes": "TBC" },
+
+    { "station": "estuary", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
+
+    { "station": "scallops", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
+    { "station": "scallops", "sensor": "bottom", "last_calibrated": "", "notes": "TBC" },
+
+    { "station": "grayling", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
+
+    { "station": "seagrass", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
+    { "station": "seagrass", "sensor": "bottom", "last_calibrated": "", "notes": "TBC" }
   ]
 }
