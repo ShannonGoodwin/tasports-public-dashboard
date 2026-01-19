@@ -2,8 +2,8 @@
    TasPorts Public Dashboard — app.js
    - Dual tiles: 6-day (left) + 15-day (right)
    - Map: black markers + permanent site name labels
-   - Calibration section: reads calibration.json (optional)
-   - Charts: raw-data embeds only (no rolling medians needed)
+   - Calibration section: reads calibration.json (supports items[] or sites{})
+   - Charts: raw-data embeds only
 ========================================================= */
 
 async function loadStations() {
@@ -42,7 +42,6 @@ async function fetchLatestFromEagleDataUrl(dataUrl) {
     .map(l => l.trim())
     .filter(Boolean);
 
-  // Expect CSV-like: 2025-12-31T12:00:00.000Z,0.72
   const dataLines = lines.filter(l => /^\d{4}-\d{2}-\d{2}T/.test(l));
   if (!dataLines.length) return null;
 
@@ -80,19 +79,15 @@ function classifyTurbidity(value) {
 
 /* ---------------------------
    URL LOOKUP (6d vs 15d)
-   Stations.json will vary — so we support common keys.
-
-   Recommended stations.json format going forward:
-   values[level].turbidity_6d
-   values[level].turbidity_15d
-
+   Recommended stations.json format:
+     values[level].turbidity_6d
+     values[level].turbidity_15d
    Backwards compatible:
-   values[level].turbidity (assumed 15d)
+     values[level].turbidity (assumed 15d)
 ---------------------------- */
 function getTurbidityUrl(station, level, windowKey) {
   const v = station?.values?.[level] || {};
 
-  // Preferred keys
   if (windowKey === "6d") {
     return (
       v.turbidity_6d ||
@@ -105,7 +100,6 @@ function getTurbidityUrl(station, level, windowKey) {
     );
   }
 
-  // 15d
   return (
     v.turbidity_15d ||
     v.turbidity15 ||
@@ -113,8 +107,7 @@ function getTurbidityUrl(station, level, windowKey) {
     v.turbidity15d ||
     v.turbidity_15day ||
     v.turbidity15day ||
-    // Back-compat: existing turbidity link (assumed 15-day median)
-    v.turbidity ||
+    v.turbidity || // fallback (assumed 15d)
     ""
   );
 }
@@ -146,8 +139,8 @@ function renderTilesInto(container, tiles) {
     .map(t => {
       const title = tileTitle(t.stationName, t.level);
       return `
-        <button class="${tileClassFor(t)}" data-station="${t.stationId}" aria-label="${title}">
-          <div class="tile-title">${title}</div>
+        <button class="${tileClassFor(t)}" data-station="${t.stationId}" aria-label="${escapeHtml(title)}">
+          <div class="tile-title">${escapeHtml(title)}</div>
           ${tileValueHtml(t)}
         </button>
       `;
@@ -162,12 +155,6 @@ function renderTilesInto(container, tiles) {
   });
 }
 
-/**
- * Fetch + build tile records for a given window: "6d" | "15d"
- * Returns:
- *  - tiles[] (for rendering)
- *  - perStationSummary (for map popups)
- */
 async function buildTurbidityTiles(stations, windowKey) {
   const tiles = [];
 
@@ -227,7 +214,6 @@ async function buildTurbidityTiles(stations, windowKey) {
     }
   }
 
-  // Build per-station summary used by map popups
   const summary = {};
   for (const t of tiles) {
     if (!summary[t.stationId]) summary[t.stationId] = { byWindow: { "6d": {}, "15d": {} } };
@@ -240,19 +226,11 @@ async function buildTurbidityTiles(stations, windowKey) {
   return { tiles, summary };
 }
 
-/**
- * Renders the 6d and 15d tile panels.
- * Supports new IDs:
- *  - turbidity-tiles-6d
- *  - turbidity-tiles-15d
- * Falls back to old ID turbidity-tiles (renders 15d only) if needed.
- */
 async function renderDualTurbidityTiles(stations) {
   const el6 = document.getElementById("turbidity-tiles-6d");
   const el15 = document.getElementById("turbidity-tiles-15d");
   const legacy = document.getElementById("turbidity-tiles");
 
-  // Loading states
   if (el6) el6.innerHTML = `<div class="tiles-loading">Loading 6-day turbidity…</div>`;
   if (el15) el15.innerHTML = `<div class="tiles-loading">Loading 15-day turbidity…</div>`;
   if (!el6 && !el15 && legacy) legacy.innerHTML = `<div class="tiles-loading">Loading turbidity…</div>`;
@@ -262,7 +240,6 @@ async function renderDualTurbidityTiles(stations) {
     buildTurbidityTiles(stations, "15d")
   ]);
 
-  // Render
   if (el6) {
     if (!tiles6.length) el6.innerHTML = `<div class="tiles-loading">No 6-day links configured.</div>`;
     else renderTilesInto(el6, tiles6);
@@ -274,12 +251,10 @@ async function renderDualTurbidityTiles(stations) {
   }
 
   if (!el6 && !el15 && legacy) {
-    // legacy layout: show 15d only
     if (!tiles15.length) legacy.innerHTML = `<div class="tiles-loading">No turbidity links configured.</div>`;
     else renderTilesInto(legacy, tiles15);
   }
 
-  // Merge summaries into one object per stationId
   const merged = {};
   for (const sid of new Set([...Object.keys(sum6), ...Object.keys(sum15)])) {
     merged[sid] = {
@@ -295,9 +270,6 @@ async function renderDualTurbidityTiles(stations) {
 
 /* ---------------------------
    MAP (index page)
-   - black markers
-   - permanent site name labels
-   - popups show 6d + 15d values (if available)
 ---------------------------- */
 let __mapState = null;
 
@@ -312,7 +284,7 @@ function initMap(stations) {
   }).addTo(map);
 
   const bounds = [];
-  const markers = {}; // stationId -> marker
+  const markers = {};
 
   stations.forEach(st => {
     const coords = st.coords;
@@ -329,7 +301,6 @@ function initMap(stations) {
       weight: 2
     }).addTo(map);
 
-    // Permanent site name labels (site-level, not depth-level)
     marker.bindTooltip(st.name, {
       permanent: true,
       direction: "right",
@@ -354,17 +325,17 @@ function popupHtmlForStation(station, stationSummary) {
     const rec = stationSummary?.byWindow?.[windowKey] || {};
     const lvls = Object.keys(rec);
 
-    if (!lvls.length) return [`<span class="subtle small">${label}: not configured</span>`];
+    if (!lvls.length) return [`<span class="subtle small">${escapeHtml(label)}: not configured</span>`];
 
     const out = [];
     for (const lvl of lvls) {
       const item = rec[lvl];
       if (!item || item.ok === false) {
-        out.push(`${lvl.toUpperCase()}: — (error${item?.reason ? `: ${item.reason}` : ""})`);
+        out.push(`${lvl.toUpperCase()}: — (error${item?.reason ? `: ${escapeHtml(item.reason)}` : ""})`);
         continue;
       }
       const tsText = item.timestamp ? new Date(item.timestamp).toLocaleString() : "—";
-      out.push(`${lvl.toUpperCase()}: ${item.value.toFixed(2)} FNU (${tsText}${item.stale ? ", stale" : ""})`);
+      out.push(`${lvl.toUpperCase()}: ${item.value.toFixed(2)} FNU (${escapeHtml(tsText)}${item.stale ? ", stale" : ""})`);
     }
     return out;
   }
@@ -373,7 +344,7 @@ function popupHtmlForStation(station, stationSummary) {
   const block15 = linesFor("15d", "15-day rolling median");
 
   return `
-    <strong>${name}</strong><br/>
+    <strong>${escapeHtml(name)}</strong><br/>
     ${lat != null ? `${lat.toFixed(5)}, ${lon.toFixed(5)}<br/><br/>` : "<br/>"}
     <em>Turbidity:</em><br/>
     <span class="small subtle">6-day rolling median</span><br/>
@@ -398,10 +369,10 @@ function updateMapPopups(stations, summaryByStation) {
 }
 
 /* ---------------------------
-   CALIBRATION SECTION (optional)
-   Expects calibration.json (optional).
-   index.html should include:
-     <div id="calibration-table"></div>
+   CALIBRATION SECTION
+   Supports either:
+   A) { "items":[ {station, sensor, last_calibrated, notes} ], "last_updated":"..." }
+   B) { "sites": { "Forth":"2026-01-05", ... }, "last_updated":"..." }
 ---------------------------- */
 async function renderCalibrationTable() {
   const host = document.getElementById("calibration-table");
@@ -413,12 +384,47 @@ async function renderCalibrationTable() {
       host.innerHTML = `<div class="small subtle">Calibration dates are not available.</div>`;
       return;
     }
-    const data = await res.json();
-    const sites = data?.sites || {};
 
+    const data = await res.json();
+
+    // Preferred: items[]
+    if (Array.isArray(data?.items)) {
+      const rows = data.items
+        .slice()
+        .sort((a, b) => {
+          const sa = `${a.station || ""}-${a.sensor || ""}`;
+          const sb = `${b.station || ""}-${b.sensor || ""}`;
+          return sa.localeCompare(sb);
+        })
+        .map(it => {
+          const station = escapeHtml(it.station || "");
+          const sensor = escapeHtml((it.sensor || "").toUpperCase());
+          const date = escapeHtml(it.last_calibrated || "—");
+          const notes = escapeHtml(it.notes || "");
+          return `<tr><td>${station}</td><td>${sensor}</td><td>${date}</td><td>${notes}</td></tr>`;
+        })
+        .join("");
+
+      host.innerHTML = rows
+        ? `
+          <table class="cal-table">
+            <thead>
+              <tr><th>Station</th><th>Sensor</th><th>Last calibrated</th><th>Notes</th></tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+          ${data?.last_updated ? `<div class="small subtle" style="margin-top:8px;">Last updated: ${escapeHtml(data.last_updated)}</div>` : ""}
+        `
+        : `<div class="small subtle">Calibration dates are not configured.</div>`;
+
+      return;
+    }
+
+    // Back-compat: sites{}
+    const sites = data?.sites || {};
     const rows = Object.entries(sites)
       .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
-      .map(([site, date]) => `<tr><td>${escapeHtml(site)}</td><td>${escapeHtml(date)}</td></tr>`)
+      .map(([site, date]) => `<tr><td>${escapeHtml(site)}</td><td>${escapeHtml(date || "—")}</td></tr>`)
       .join("");
 
     host.innerHTML = rows
@@ -446,7 +452,7 @@ function escapeHtml(s) {
 }
 
 /* ---------------------------
-   CHARTS PAGE (raw-data embeds)
+   CHARTS PAGE (raw embeds)
 ---------------------------- */
 function buildStationOptions(stations) {
   const sel = document.getElementById("stationPicker");
@@ -485,9 +491,7 @@ function renderChartsByStation(stations, stationId) {
 
   for (const level of sensors) {
     const charts = s?.charts?.[level] || {};
-    // Titles explicitly say "Raw"
     if (charts.turbidity) blocks.push(buildChartCard(charts.turbidity, `${s.name} – ${String(level).toUpperCase()} – Turbidity (raw)`));
-    if (charts.tss) blocks.push(buildChartCard(charts.tss, `${s.name} – ${String(level).toUpperCase()} – TSS (raw)`));
     if (charts.do) blocks.push(buildChartCard(charts.do, `${s.name} – ${String(level).toUpperCase()} – Dissolved oxygen (raw)`));
     if (charts.ph) blocks.push(buildChartCard(charts.ph, `${s.name} – ${String(level).toUpperCase()} – pH (raw)`));
     if (charts.temp) blocks.push(buildChartCard(charts.temp, `${s.name} – ${String(level).toUpperCase()} – Temperature (raw)`));
@@ -562,19 +566,13 @@ function initChartsPage(stations) {
     const stations = await loadStations();
 
     if (currentPage() === "index") {
-      // Init map once
       __mapState = initMap(stations);
 
-      // Tiles (6d + 15d)
       const summaryByStation = await renderDualTurbidityTiles(stations);
-
-      // Popups show both windows if available
       updateMapPopups(stations, summaryByStation);
 
-      // Calibration section (optional)
       await renderCalibrationTable();
 
-      // Refresh tiles periodically + update popups
       setInterval(async () => {
         const sum = await renderDualTurbidityTiles(stations);
         updateMapPopups(stations, sum);
@@ -587,7 +585,6 @@ function initChartsPage(stations) {
   } catch (err) {
     console.error(err);
 
-    // Updated: support new container IDs + legacy
     const el6 = document.getElementById("turbidity-tiles-6d");
     const el15 = document.getElementById("turbidity-tiles-15d");
     const legacy = document.getElementById("turbidity-tiles");
