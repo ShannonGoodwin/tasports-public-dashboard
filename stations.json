@@ -26,15 +26,15 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/wceelzcnzrpyfuj",
-          "do": "",
-          "ph": "",
-          "temp": ""
+          "do": "https://public.eagle.io/public/chart/4j6534f269lh3pi",
+          "ph": "https://public.eagle.io/public/chart/pwjgstgryygljdc",
+          "temp": "https://public.eagle.io/public/chart/rikxezhz7plaaic"
         },
         "bottom": {
           "turbidity": "https://public.eagle.io/public/chart/6l490um3bibuprw",
-          "do": "",
-          "ph": "",
-          "temp": ""
+          "do": "https://public.eagle.io/public/chart/hiqwlkbszcru5bo",
+          "ph": "https://public.eagle.io/public/chart/m17hthnkbgex615",
+          "temp": "https://public.eagle.io/public/chart/oshxhqbcpml2vnq"
         }
       }
     },
@@ -64,15 +64,15 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/kcbvw7ff94ys0yb",
-          "do": "",
-          "ph": "",
-          "temp": ""
+          "do": "https://public.eagle.io/public/chart/dpjeq0o2qtzn4rg  ",
+          "ph": "https://public.eagle.io/public/chart/9yvo43lgjvenlmy",
+          "temp": "https://public.eagle.io/public/chart/pg41vvv2c96qknm"
         },
         "bottom": {
           "turbidity": "https://public.eagle.io/public/chart/gnc70jr0xrbs4d1",
-          "do": "",
-          "ph": "",
-          "temp": ""
+          "do": "https://public.eagle.io/public/chart/apfouiznnlqa7pa",
+          "ph": "https://public.eagle.io/public/chart/1yr6r2ijgkns2pc",
+          "temp": "https://public.eagle.io/public/chart/jd1ri872pq0atgb"
         }
       }
     },
@@ -94,9 +94,9 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/hs9juhzrpqp2enp",
-          "do": "",
-          "ph": "",
-          "temp": ""
+          "do": "https://public.eagle.io/public/chart/xoayyjbsfbh7evo",
+          "ph": "https://public.eagle.io/public/chart/gzxnl5ksr14no2r",
+          "temp": "https://public.eagle.io/public/chart/hq6c4i8xkhfdth3"
         }
       }
     },
@@ -126,15 +126,15 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/p7g90th1n9yzo0b",
-          "do": "",
-          "ph": "",
-          "temp": ""
+          "do": "https://public.eagle.io/public/chart/i93yg2rrqrv20eo",
+          "ph": "https://public.eagle.io/public/chart/2jg4qkz481jvj72",
+          "temp": "https://public.eagle.io/public/chart/twdwntgdga5c09o"
         },
         "bottom": {
           "turbidity": "https://public.eagle.io/public/chart/3gepfuyvxzj6ocb",
-          "do": "",
-          "ph": "",
-          "temp": ""
+          "do": "https://public.eagle.io/public/chart/gecdsq9pejhezf1",
+          "ph": "https://public.eagle.io/public/chart/1ktts8proyjjz5u",
+          "temp": "https://public.eagle.io/public/chart/twdwntgdga5c09o"
         }
       }
     },
@@ -156,9 +156,9 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/iuu2p7j7ura33mu",
-          "do": "",
-          "ph": "",
-          "temp": ""
+          "do": "https://public.eagle.io/public/chart/lyxm5bdxnj75l8h",
+          "ph": "https://public.eagle.io/public/chart/1oyrjxqss2prv9d",
+          "temp": "https://public.eagle.io/public/chart/6c8paukadchz2bs"
         }
       }
     },
@@ -188,18 +188,19 @@
       "charts": {
         "top": {
           "turbidity": "https://public.eagle.io/public/chart/rhc7sqz43qxmeyc",
-          "do": "",
-          "ph": "",
-          "temp": ""
+          "do": "https://public.eagle.io/public/chart/ol2at34dkatrsde",
+          "ph": "https://public.eagle.io/public/chart/nat28hpuqnpjsd2",
+          "temp": "https://public.eagle.io/public/chart/6h35xp86llvsxma"
         },
         "bottom": {
           "turbidity": "https://public.eagle.io/public/chart/0gpnhn60rl7oiv2",
-          "do": "",
-          "ph": "",
-          "temp": ""
+          "do": "https://public.eagle.io/public/chart/4odytwd0r3ooary",
+          "ph": "https://public.eagle.io/public/chart/bpq8638ohn4n4ix",
+          "temp": "https://public.eagle.io/public/chart/i8cuj9l4nfs9vs9"
         }
       }
     }
   ]
 }
+
 
