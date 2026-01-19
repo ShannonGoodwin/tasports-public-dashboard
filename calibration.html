@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TasPorts – Calibration register</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="header" id="top">
+    <div class="header__inner">
+      <div class="brand">
+        <img src="logo.png" alt="TasPorts" class="brand__logo" />
+        <div>
+          <h1 class="brand__title">TasPorts Dredging Program – Calibration Register</h1>
+          <p class="brand__sub">Manual register to support reporting transparency.</p>
+        </div>
+      </div>
+
+      <nav class="header__nav">
+        <a class="navpill" href="index.html">Map + live tiles</a>
+        <a class="navpill" href="charts.html">Live charts</a>
+        <a class="navpill navpill--active" href="calibration.html">Calibration</a>
+      </nav>
+    </div>
+    <div class="header__divider"></div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <h2>Instrument calibration</h2>
+      <p class="subtle small" style="margin-bottom:12px;">
+        These dates are maintained manually and do not affect data display.
+      </p>
+
+      <div id="calibration-table">
+        <div class="tiles-loading">Loading calibration register…</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="small subtle">
+        Register is maintained manually.
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
