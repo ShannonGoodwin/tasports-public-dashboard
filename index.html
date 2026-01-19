@@ -15,10 +15,8 @@
 </head>
 
 <body>
-  <!-- HEADER / BRAND -->
   <header class="header" id="top">
     <div class="header__inner">
-
       <div class="brand">
         <img src="logo.png" alt="TasPorts" class="brand__logo" />
         <div>
@@ -32,20 +30,18 @@
       <nav class="header__nav">
         <a class="navpill navpill--active" href="index.html">Map + live tiles</a>
         <a class="navpill" href="charts.html">Live charts</a>
+        <a class="navpill" href="calibration.html">Calibration</a>
       </nav>
-
     </div>
     <div class="header__divider"></div>
   </header>
 
   <main class="layout">
 
-    <!-- TURBIDITY -->
     <section class="panel">
       <div class="panel-head">
         <div>
           <h2>Turbidity (rolling medians)</h2>
-          <p class="subtle small">Landing page focuses on turbidity for public and stakeholder reporting.</p>
         </div>
 
         <div class="status-legend" aria-label="Turbidity status legend">
@@ -60,7 +56,6 @@
         </div>
       </div>
 
-      <!-- app.js will populate these -->
       <div class="tiles-split">
         <div class="tiles-panel">
           <div class="tiles-panel__title">6-day rolling median</div>
@@ -73,30 +68,12 @@
         </div>
       </div>
 
-      <p class="subtle small">
-        Values are the latest available for each sensor (Top/Bottom where present). A 24-hour stale rule is applied to tiles and popup timestamps.
+      <p class="subtle small" style="margin-top:10px;">
+        Values are the latest available for each sensor (Top/Bottom where present). A 24-hour stale rule is applied.
         Click a tile to open the charts page for that station.
       </p>
     </section>
 
-    <!-- CALIBRATION -->
-    <section class="panel">
-      <div class="panel-head">
-        <div>
-          <h2>Instrument calibration</h2>
-          <p class="subtle small">
-            Dates are maintained manually to support reporting transparency. These do not affect data display.
-          </p>
-        </div>
-      </div>
-
-      <!-- app.js will replace contents -->
-      <div id="calibration-table">
-        <div class="tiles-loading">Loading calibration register…</div>
-      </div>
-    </section>
-
-    <!-- MAP -->
     <section class="panel panel--map">
       <h2>Site map</h2>
       <div id="map"></div>
