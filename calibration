@@ -1,0 +1,10 @@
+{
+  "last_updated": "2026-01-19",
+  "items": [
+    { "station": "forth", "sensor": "top", "last_calibrated": "2026-01-05", "notes": "" },
+    { "station": "forth", "sensor": "bottom", "last_calibrated": "2026-01-05", "notes": "" },
+
+    { "station": "offshore", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
+    { "station": "offshore", "sensor": "bottom", "last_calibrated": "", "notes": "TBC" }
+  ]
+}
