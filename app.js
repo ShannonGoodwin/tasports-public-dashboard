@@ -1,24 +1,30 @@
 /* =========================================================
    TasPorts Public Dashboard — app.js
    - Dual tiles: 6-day (left) + 15-day (right)
-   - Map: black markers + permanent site name labels
+   - Map: black markers + permanent site name labels (with per-site offsets)
    - Calibration page: reads calibration.json (supports items[] or sites{})
-   - Charts: embeds (no "(raw)" in headings)
+   - Charts: embeds
 ========================================================= */
 
+const TURBIDITY_THRESHOLDS = {
+  seagrass: { amber: 3.0, red: 4.33 },
+  scallops: { amber: 3.0, red: 4.33 },
+  grayling: { amber: 8.5, red: 16.5 }
+};
+
 async function loadStations() {
-  const res = await fetch("stations.json", { cache: "no-store" });
+  const res = await fetch("/stations.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load stations.json");
   const data = await res.json();
   return data.stations || [];
 }
 
 function currentPage() {
-  // Netlify / links may use "pretty" routes like /charts or /calibration
-  // We accept both /charts(.html) and /calibration(.html)
-  const raw = (window.location.pathname || "").toLowerCase();
-  const p = raw.endsWith("/") ? raw.slice(0, -1) : raw;
+  // DOM-based detection (robust to Netlify preview / pretty URLs)
+  if (document.getElementById("calibration-table")) return "calibration";
+  if (document.getElementById("chartsContainer") || document.getElementById("stationPicker")) return "charts";
 
+  const p = (window.location.pathname || "").toLowerCase();
   if (p.endsWith("/charts.html") || p.endsWith("/charts")) return "charts";
   if (p.endsWith("/calibration.html") || p.endsWith("/calibration")) return "calibration";
   return "index";
@@ -74,11 +80,15 @@ function formatFnu(value) {
 
 /* ---------------------------
    THRESHOLDS (turbidity)
-   NOTE: placeholders until you replace with AMMP-derived values
+   - Only apply to: seagrass, scallops, grayling
+   - Others render "neutral"
 ---------------------------- */
-function classifyTurbidity(value) {
-  if (value >= 10) return "red";
-  if (value >= 5) return "amber";
+function classifyTurbidity(stationId, value) {
+  const th = TURBIDITY_THRESHOLDS[String(stationId || "").toLowerCase()];
+  if (!th) return "neutral"; // no triggers apply for this site
+
+  if (value >= th.red) return "red";
+  if (value >= th.amber) return "amber";
   return "green";
 }
 
@@ -118,7 +128,8 @@ function getTurbidityUrl(station, level, windowKey) {
 function tileClassFor(t) {
   if (t.error) return "tile tile--error";
   if (t.stale) return "tile tile--stale";
-  const cls = classifyTurbidity(t.value);
+
+  const cls = classifyTurbidity(t.stationId, t.value);
   return `tile tile--${cls}`;
 }
 
@@ -273,6 +284,17 @@ async function renderDualTurbidityTiles(stations) {
 ---------------------------- */
 let __mapState = null;
 
+function tooltipPlacementFor(stationId) {
+  // Default placement
+  const def = { direction: "right", offset: [10, 0] };
+
+  // Fix overlap: Estuary + Seagrass are close
+  if (stationId === "estuary") return { direction: "top", offset: [0, -14] };
+  if (stationId === "seagrass") return { direction: "bottom", offset: [0, 14] };
+
+  return def;
+}
+
 function initMap(stations) {
   const mapEl = document.getElementById("map");
   if (!mapEl || typeof L === "undefined") return null;
@@ -301,10 +323,12 @@ function initMap(stations) {
       weight: 2
     }).addTo(map);
 
+    const place = tooltipPlacementFor(st.id);
+
     marker.bindTooltip(escapeHtml(st.name), {
       permanent: true,
-      direction: "right",
-      offset: [8, 0],
+      direction: place.direction,
+      offset: place.offset,
       className: "map-label",
       opacity: 0.95
     });
@@ -387,7 +411,7 @@ async function renderCalibrationTable() {
   if (!host) return;
 
   try {
-    const res = await fetch("calibration.json", { cache: "no-store" });
+    const res = await fetch("/calibration.json", { cache: "no-store" });
     if (!res.ok) {
       host.innerHTML = `<div class="small subtle">Calibration dates are not available.</div>`;
       return;
@@ -395,7 +419,6 @@ async function renderCalibrationTable() {
 
     const data = await res.json();
 
-    // Preferred schema: { items: [ {station, sensor, last_calibrated, notes}, ... ], last_updated }
     if (Array.isArray(data?.items)) {
       const rows = data.items
         .slice()
@@ -428,7 +451,6 @@ async function renderCalibrationTable() {
       return;
     }
 
-    // Legacy schema: { sites: { "Site name": "YYYY-MM-DD", ... }, last_updated }
     const sites = data?.sites || {};
     const rows = Object.entries(sites)
       .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
@@ -549,13 +571,13 @@ function initChartsPage(stations) {
   function refresh() {
     const mode = viewMode?.value || "station";
     if (mode === "station") {
-      stationWrap.style.display = "";
-      paramWrap.style.display = "none";
-      renderChartsByStation(stations, stationPicker.value);
+      if (stationWrap) stationWrap.style.display = "";
+      if (paramWrap) paramWrap.style.display = "none";
+      if (stationPicker) renderChartsByStation(stations, stationPicker.value);
     } else {
-      stationWrap.style.display = "none";
-      paramWrap.style.display = "";
-      renderChartsByParameter(stations, paramPicker.value);
+      if (stationWrap) stationWrap.style.display = "none";
+      if (paramWrap) paramWrap.style.display = "";
+      if (paramPicker) renderChartsByParameter(stations, paramPicker.value);
     }
   }
 
