@@ -475,7 +475,29 @@ select{
   padding:10px 10px;
   border-radius:12px;
 }
+select{
+  color: rgba(255,255,255,.95);
+  font-weight: 500;
+}
 
+/* Dropdown list items */
+select option{
+  background-color: #0c1826;        /* same as panel background */
+  color: rgba(255,255,255,.95);     /* high contrast */
+  font-weight: 500;
+}
+
+/* Hovered / active option */
+select option:hover,
+select option:checked{
+  background-color: rgba(0,141,128,.35);
+  color: #ffffff;
+}
+
+/* Disabled / placeholder-style options (if any appear later) */
+select option:disabled{
+  color: rgba(255,255,255,.45);
+}
 .charts-grid{
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -612,3 +634,4 @@ select{
   font-size: 12px;
   opacity: 0.8;
 }
+
