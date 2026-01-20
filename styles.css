@@ -24,6 +24,9 @@
   --stale: rgba(154,163,178,.90);
   --error: rgba(20,20,20,.98);
 
+  /* Neutral (no trigger) */
+  --neutral: rgba(85,160,255,.95);
+
   /* Tile text contrast */
   --tile-title: rgba(255,255,255,.92);
   --tile-value: rgba(255,255,255,.98);
@@ -94,7 +97,6 @@ body{
   letter-spacing:.1px;
   line-height:1.2;
 }
-
 
 .brand__sub{
   margin:0;
@@ -239,6 +241,7 @@ h2{margin:0 0 12px 0; font-size:16px}
 .swatch--amber{ background: var(--amber); }
 .swatch--red{ background: var(--red); }
 .swatch--stale{ background: var(--stale); }
+.swatch--neutral{ background: var(--neutral); }
 
 /* Make error visually distinct vs stale */
 .swatch--error{
@@ -258,15 +261,22 @@ h2{margin:0 0 12px 0; font-size:16px}
   background: rgba(0,0,0,.18);
 }
 
-.map-label{
-  background: rgba(7,16,26,.78);
-  border: 1px solid rgba(255,255,255,.16);
-  color: rgba(255,255,255,.92);
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-weight: 600;
+/* Map label styling: no box, use halo/buffer for readability */
+.leaflet-tooltip.map-label{
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+
+  color: rgba(255,255,255,.92) !important;
+  font-weight: 700;
   font-size: 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+
+  /* halo (buffer) to separate from basemap */
+  text-shadow:
+    0 0 2px rgba(0,0,0,.95),
+    0 0 6px rgba(0,0,0,.85),
+    0 0 10px rgba(0,0,0,.65);
 }
 
 .cal-table{
@@ -286,7 +296,6 @@ h2{margin:0 0 12px 0; font-size:16px}
   color: rgba(255,255,255,.82);
   font-weight: 700;
 }
-
 
 /* Optional: slightly mute the basemap so markers + overlays read better */
 #map .leaflet-tile{
@@ -384,7 +393,6 @@ h2{margin:0 0 12px 0; font-size:16px}
   opacity:.95;
 }
 
-
 .tile-value{
   font-size: 26px;        /* slightly smaller */
   font-weight: 600;      /* Calibri Semibold feel */
@@ -393,8 +401,6 @@ h2{margin:0 0 12px 0; font-size:16px}
   letter-spacing: .1px;
   text-shadow: 0 1px 10px rgba(0,0,0,.35);
 }
-
-
 
 .tile-sub{
   font-size: 12px;
@@ -417,6 +423,11 @@ h2{margin:0 0 12px 0; font-size:16px}
 .tile--red{
   border-color: rgba(255,60,60,.70);
   background: linear-gradient(180deg, rgba(255,60,60,.22), rgba(255,255,255,.06));
+}
+
+.tile--neutral{
+  border-color: rgba(85,160,255,.70);
+  background: linear-gradient(180deg, rgba(85,160,255,.12), rgba(255,255,255,.06));
 }
 
 .tile--stale{
