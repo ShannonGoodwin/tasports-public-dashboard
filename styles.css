@@ -37,7 +37,6 @@
 }
 
 *{box-sizing:border-box}
-
 html, body{height:100%}
 
 body{
@@ -192,6 +191,45 @@ h2{margin:0 0 12px 0; font-size:16px}
 }
 
 /* ---------------------------
+   NOTE / CALLOUT (FNU vs NTU etc)
+---------------------------- */
+.note{
+  margin: 10px 0 12px 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.35;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  background: rgba(255,255,255,.03);
+}
+
+.note strong{
+  color: rgba(255,255,255,.92);
+}
+
+.note-more{
+  margin: -6px 0 12px 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.note-more summary{
+  cursor: pointer;
+  color: rgba(159,195,255,.95);
+  user-select: none;
+}
+
+.note-more summary:hover{
+  text-decoration: underline;
+}
+
+.note-more p{
+  margin: 8px 0 0 0;
+  line-height: 1.35;
+}
+
+/* ---------------------------
    TOP LEGEND (status-legend)
 ---------------------------- */
 .status-legend{
@@ -279,24 +317,6 @@ h2{margin:0 0 12px 0; font-size:16px}
     0 0 10px rgba(0,0,0,.65);
 }
 
-.cal-table{
-  width:100%;
-  border-collapse: collapse;
-}
-
-.cal-table th, .cal-table td{
-  text-align:left;
-  padding:10px 10px;
-  border-bottom:1px solid rgba(255,255,255,.10);
-  font-size: 13px;
-  color: rgba(255,255,255,.90);
-}
-
-.cal-table th{
-  color: rgba(255,255,255,.82);
-  font-weight: 700;
-}
-
 /* Optional: slightly mute the basemap so markers + overlays read better */
 #map .leaflet-tile{
   filter: saturate(.85) contrast(1.02) brightness(.98);
@@ -328,6 +348,35 @@ h2{margin:0 0 12px 0; font-size:16px}
 }
 
 /* ---------------------------
+   CALIBRATION TABLE
+---------------------------- */
+.cal-table{
+  width:100%;
+  border-collapse: collapse;
+}
+
+.cal-table th, .cal-table td{
+  text-align:left;
+  padding:10px 10px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  font-size: 13px;
+  color: rgba(255,255,255,.90);
+}
+
+.cal-table th{
+  color: rgba(255,255,255,.82);
+  font-weight: 700;
+}
+
+/* Optional helper line under calibration table */
+.cal-footnote{
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* ---------------------------
    TILES
 ---------------------------- */
 .tiles-grid{
@@ -345,7 +394,6 @@ h2{margin:0 0 12px 0; font-size:16px}
   .tiles-grid{ grid-template-columns: 1fr; } /* mobile stacks naturally */
   .tile--span2{ grid-column: auto; }
 }
-
 
 /* Split turbidity tiles into left/right panels (6d vs 15d) */
 .tiles-split{
@@ -383,7 +431,7 @@ h2{margin:0 0 12px 0; font-size:16px}
   border: 2px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.07);
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 11px 13px; /* slightly tighter than before */
   text-align: left;
   cursor: pointer;
   transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
@@ -398,18 +446,33 @@ h2{margin:0 0 12px 0; font-size:16px}
 }
 
 .tile-title{
-  font-weight:600;       /* was 700 */
+  font-weight:600;
   font-size:13px;
   color: var(--tile-title);
   opacity:.95;
+  display:flex;                 /* supports optional chip layout */
+  align-items:center;
+  gap:8px;
+}
+
+/* Optional small label chip (e.g., TOP/BOTTOM) */
+.tile-title .chip{
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.05);
+  color: rgba(255,255,255,.86);
+  letter-spacing: .2px;
 }
 
 .tile-value{
-  font-size: 26px;        /* slightly smaller */
+  font-size: 26px;
   font-weight: 600;      /* Calibri Semibold feel */
   margin-top: 6px;
   color: var(--tile-value);
   letter-spacing: .1px;
+  line-height: 1.05;
   text-shadow: 0 1px 10px rgba(0,0,0,.35);
 }
 
@@ -417,6 +480,7 @@ h2{margin:0 0 12px 0; font-size:16px}
   font-size: 12px;
   margin-top: 3px;
   color: var(--tile-sub);
+  opacity: .92;
   text-shadow: 0 1px 12px rgba(0,0,0,.40);
 }
 
@@ -479,16 +543,14 @@ select:focus-visible{
   color: var(--muted);
 }
 
+/* Select styling (including dropdown readability) */
 select{
   border:1px solid var(--border);
   background:rgba(255,255,255,.06);
-  color:var(--text);
-  padding:10px 10px;
-  border-radius:12px;
-}
-select{
   color: rgba(255,255,255,.95);
   font-weight: 500;
+  padding:10px 10px;
+  border-radius:12px;
 }
 
 /* Dropdown list items */
@@ -509,6 +571,7 @@ select option:checked{
 select option:disabled{
   color: rgba(255,255,255,.45);
 }
+
 .charts-grid{
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -645,5 +708,3 @@ select option:disabled{
   font-size: 12px;
   opacity: 0.8;
 }
-
-
