@@ -3,7 +3,7 @@
    - Dual tiles: 6-day (left) + 15-day (right)
    - Map: black markers + permanent site name labels (with per-site offsets)
    - Calibration page: reads calibration.json (supports items[] or sites{})
-   - Charts: embeds (By station order: Top+Bottom per parameter)
+   - Charts: embeds
 ========================================================= */
 
 const TURBIDITY_THRESHOLDS = {
@@ -285,8 +285,10 @@ async function renderDualTurbidityTiles(stations) {
 let __mapState = null;
 
 function tooltipPlacementFor(stationId) {
+  // Default placement
   const def = { direction: "right", offset: [10, 0] };
 
+  // Fix overlap: Estuary + Seagrass are close
   if (stationId === "estuary") return { direction: "top", offset: [0, -14] };
   if (stationId === "seagrass") return { direction: "bottom", offset: [0, 14] };
 
@@ -403,27 +405,7 @@ function updateMapPopups(stations, summaryByStation) {
 
 /* ---------------------------
    CALIBRATION PAGE
-   - Supports date+time in last_calibrated
-   - Display as locale date/time if parseable; else display raw
 ---------------------------- */
-function formatCalibrationDateTime(input) {
-  const raw = String(input ?? "").trim();
-  if (!raw) return "—";
-
-  // Try parsing ISO or similar.
-  // Also allow "YYYY-MM-DD HH:MM" by converting to ISO-ish.
-  let candidate = raw;
-  if (/^\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}/.test(raw)) {
-    candidate = raw.replace(" ", "T");
-  }
-
-  const ms = Date.parse(candidate);
-  if (Number.isFinite(ms)) return new Date(ms).toLocaleString();
-
-  // Fallback: show what was entered (manual register)
-  return raw;
-}
-
 async function renderCalibrationTable() {
   const host = document.getElementById("calibration-table");
   if (!host) return;
@@ -437,6 +419,12 @@ async function renderCalibrationTable() {
 
     const data = await res.json();
 
+    const tzNoteHtml = `
+      <div class="small subtle" style="margin-top:6px;">
+        All times are shown in Australian Eastern Daylight Time (AEDT).
+      </div>
+    `;
+
     // Preferred schema: { items: [ {station, sensor, last_calibrated, notes}, ... ], last_updated }
     if (Array.isArray(data?.items)) {
       const rows = data.items
@@ -447,11 +435,19 @@ async function renderCalibrationTable() {
           return sa.localeCompare(sb);
         })
         .map(it => {
-          const station = escapeHtml(it.station || "");
-          const sensor = escapeHtml((it.sensor || "").toUpperCase());
-          const dt = escapeHtml(formatCalibrationDateTime(it.last_calibrated));
+          // Station: Title Case
+          const station = escapeHtml(
+            it.station ? it.station.charAt(0).toUpperCase() + it.station.slice(1) : ""
+          );
+
+          // Sensor: Sentence case (Top/Bottom)
+          const sensor = escapeHtml(
+            it.sensor ? it.sensor.charAt(0).toUpperCase() + it.sensor.slice(1).toLowerCase() : ""
+          );
+
+          const date = escapeHtml(it.last_calibrated || "—");
           const notes = escapeHtml(it.notes || "");
-          return `<tr><td>${station}</td><td>${sensor}</td><td>${dt}</td><td>${notes}</td></tr>`;
+          return `<tr><td>${station}</td><td>${sensor}</td><td>${date}</td><td>${notes}</td></tr>`;
         })
         .join("");
 
@@ -459,11 +455,12 @@ async function renderCalibrationTable() {
         ? `
           <table class="cal-table">
             <thead>
-              <tr><th>Station</th><th>Sensor</th><th>Last calibrated (date/time)</th><th>Notes</th></tr>
+              <tr><th>Station</th><th>Sensor</th><th>Last calibrated (Date & Time)</th><th>Notes</th></tr>
             </thead>
             <tbody>${rows}</tbody>
           </table>
           ${data?.last_updated ? `<div class="small subtle" style="margin-top:8px;">Last updated: ${escapeHtml(data.last_updated)}</div>` : ""}
+          ${tzNoteHtml}
         `
         : `<div class="small subtle">Calibration dates are not configured.</div>`;
 
@@ -474,16 +471,20 @@ async function renderCalibrationTable() {
     const sites = data?.sites || {};
     const rows = Object.entries(sites)
       .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
-      .map(([site, date]) => `<tr><td>${escapeHtml(site)}</td><td>${escapeHtml(formatCalibrationDateTime(date))}</td></tr>`)
+      .map(([site, date]) => {
+        const siteName = site ? String(site).charAt(0).toUpperCase() + String(site).slice(1) : "";
+        return `<tr><td>${escapeHtml(siteName)}</td><td>${escapeHtml(date || "—")}</td></tr>`;
+      })
       .join("");
 
     host.innerHTML = rows
       ? `
         <table class="cal-table">
-          <thead><tr><th>Site</th><th>Last calibration (date/time)</th></tr></thead>
+          <thead><tr><th>Site</th><th>Last calibration</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
         ${data?.last_updated ? `<div class="small subtle" style="margin-top:8px;">Last updated: ${escapeHtml(data.last_updated)}</div>` : ""}
+        ${tzNoteHtml}
       `
       : `<div class="small subtle">Calibration dates are not configured.</div>`;
   } catch (e) {
@@ -503,7 +504,6 @@ function escapeHtml(s) {
 
 /* ---------------------------
    CHARTS PAGE (embeds)
-   - By station: order is Top/Bottom per parameter (not all Top then all Bottom)
 ---------------------------- */
 function buildStationOptions(stations) {
   const sel = document.getElementById("stationPicker");
@@ -524,26 +524,6 @@ function buildChartCard(url, title) {
   `;
 }
 
-function prettyParamLabel(paramKey) {
-  if (paramKey === "do") return "Dissolved oxygen";
-  if (paramKey === "temp") return "Temperature";
-  if (paramKey === "turbidity") return "Turbidity";
-  if (paramKey === "ph") return "pH";
-  return String(paramKey || "").toUpperCase();
-}
-
-function preferredSensorOrder(sensors) {
-  const set = new Set((sensors || []).map(x => String(x).toLowerCase()));
-  const ordered = [];
-  if (set.has("top")) ordered.push("top");
-  if (set.has("bottom")) ordered.push("bottom");
-  for (const s of (sensors || [])) {
-    const k = String(s).toLowerCase();
-    if (!ordered.includes(k)) ordered.push(k);
-  }
-  return ordered.length ? ordered : ["top"];
-}
-
 function renderChartsByStation(stations, stationId) {
   const container = document.getElementById("chartsContainer");
   const msg = document.getElementById("chartsMsg");
@@ -558,18 +538,14 @@ function renderChartsByStation(stations, stationId) {
 
   msg.textContent = "";
   const blocks = [];
+  const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
 
-  const sensors = preferredSensorOrder(Array.isArray(s.sensors) ? s.sensors : ["top"]);
-  const paramOrder = ["turbidity", "do", "ph", "temp"]; // client-requested sequence
-
-  for (const paramKey of paramOrder) {
-    for (const level of sensors) {
-      const url = s?.charts?.[level]?.[paramKey] || "";
-      if (!url) continue;
-
-      const label = prettyParamLabel(paramKey);
-      blocks.push(buildChartCard(url, `${s.name} – ${String(level).toUpperCase()} – ${label}`));
-    }
+  for (const level of sensors) {
+    const charts = s?.charts?.[level] || {};
+    if (charts.turbidity) blocks.push(buildChartCard(charts.turbidity, `${s.name} – ${String(level).toUpperCase()} – Turbidity`));
+    if (charts.do) blocks.push(buildChartCard(charts.do, `${s.name} – ${String(level).toUpperCase()} – Dissolved oxygen`));
+    if (charts.ph) blocks.push(buildChartCard(charts.ph, `${s.name} – ${String(level).toUpperCase()} – pH`));
+    if (charts.temp) blocks.push(buildChartCard(charts.temp, `${s.name} – ${String(level).toUpperCase()} – Temperature`));
   }
 
   container.innerHTML = blocks.join("") || `<div class="small subtle">No charts configured for this station yet.</div>`;
@@ -584,12 +560,16 @@ function renderChartsByParameter(stations, paramKey) {
   const blocks = [];
 
   for (const s of stations) {
-    const sensors = preferredSensorOrder(Array.isArray(s.sensors) ? s.sensors : ["top"]);
+    const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
     for (const level of sensors) {
       const url = s?.charts?.[level]?.[paramKey] || "";
       if (!url) continue;
 
-      const label = prettyParamLabel(paramKey);
+      let label = paramKey.toUpperCase();
+      if (paramKey === "do") label = "Dissolved oxygen";
+      if (paramKey === "temp") label = "Temperature";
+      if (paramKey === "turbidity") label = "Turbidity";
+
       blocks.push(buildChartCard(url, `${s.name} – ${String(level).toUpperCase()} – ${label}`));
     }
   }
