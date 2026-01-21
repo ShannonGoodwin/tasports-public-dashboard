@@ -181,12 +181,28 @@ function tileClassFor(t) {
   return `tile tile--${cls}`;
 }
 
+function formatTileTime(isoTs){
+  try{
+    const d = new Date(isoTs);
+    return d.toLocaleString("en-AU", {
+      timeZone: "Australia/Hobart",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }catch{
+    return new Date(isoTs).toLocaleString();
+  }
+}
+
 function tileValueHtml(t) {
   if (t.error) {
     return `<div class="tile-value">—</div><div class="tile-sub">Error / missing</div>`;
   }
   return `<div class="tile-value">${formatFnu(t.value)}</div>
-          <div class="tile-sub">${new Date(t.timestamp).toLocaleString()}${t.stale ? " (stale)" : ""}</div>`;
+          <div class="tile-sub">${formatTileTime(t.timestamp)}${t.stale? "9stale)": ""}</div>;
 }
 
 function tileTitle(stationName, level) {
@@ -763,3 +779,4 @@ function initChartsPage(stations) {
     if (calHost) calHost.innerHTML = `<div class="small subtle">${msg}</div>`;
   }
 })();
+
