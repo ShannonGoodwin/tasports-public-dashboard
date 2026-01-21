@@ -332,9 +332,20 @@ h2{margin:0 0 12px 0; font-size:16px}
 ---------------------------- */
 .tiles-grid{
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, minmax(260px, 1fr)); /* fixed 2-col so TOP/BOTTOM stay adjacent */
   gap: 12px;
 }
+
+/* Single-sensor stations span both columns (safer / cleaner) */
+.tile--span2{
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 900px){
+  .tiles-grid{ grid-template-columns: 1fr; } /* mobile stacks naturally */
+  .tile--span2{ grid-column: auto; }
+}
+
 
 /* Split turbidity tiles into left/right panels (6d vs 15d) */
 .tiles-split{
@@ -634,4 +645,5 @@ select option:disabled{
   font-size: 12px;
   opacity: 0.8;
 }
+
 
