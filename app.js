@@ -445,6 +445,12 @@ function updateMapPopups(stations, summaryByStation) {
 /* ---------------------------
    CALIBRATION PAGE
 ---------------------------- */
+function formatFirstLetterCapital(str) {
+  const s = String(str ?? "").trim();
+  if (!s) return "";
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+}
+
 async function renderCalibrationTable() {
   const host = document.getElementById("calibration-table");
   if (!host) return;
@@ -467,8 +473,8 @@ async function renderCalibrationTable() {
           return sa.localeCompare(sb);
         })
         .map(it => {
-          const station = escapeHtml(it.station || "");
-          const sensor = escapeHtml((it.sensor || "").toUpperCase());
+          const station = escapeHtml(formatFirstLetterCapital(it.station || ""));
+          const sensor = escapeHtml(formatFirstLetterCapital(it.sensor || ""));
           const date = escapeHtml(it.last_calibrated || "—");
           const notes = escapeHtml(it.notes || "");
           return `<tr><td>${station}</td><td>${sensor}</td><td>${date}</td><td>${notes}</td></tr>`;
@@ -493,7 +499,7 @@ async function renderCalibrationTable() {
     const sites = data?.sites || {};
     const rows = Object.entries(sites)
       .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
-      .map(([site, date]) => `<tr><td>${escapeHtml(site)}</td><td>${escapeHtml(date || "—")}</td></tr>`)
+      .map(([site, date]) => `<tr><td>${escapeHtml(formatFirstLetterCapital(site))}</td><td>${escapeHtml(date || "—")}</td></tr>`)
       .join("");
 
     host.innerHTML = rows
@@ -686,4 +692,3 @@ function initChartsPage(stations) {
     if (calHost) calHost.innerHTML = `<div class="small subtle">${msg}</div>`;
   }
 })();
-
