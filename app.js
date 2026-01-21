@@ -43,6 +43,43 @@ const SENSOR_ORDER = ["top", "bottom"];
 const CAL_TIMEZONE_LABEL = "ADST";
 const CAL_TIMEZONE_IANA = "Australia/Hobart";
 
+/**
+ * "Last refreshed" indicator:
+ * This will update any element with id:
+ * - dataRefreshed
+ * - data-refreshed
+ * - lastRefreshed
+ * - last-refreshed
+ *
+ * If none exist, it silently does nothing.
+ */
+function formatUiDateTime(dateOrIso) {
+  const d = dateOrIso instanceof Date ? dateOrIso : new Date(String(dateOrIso || ""));
+  if (!Number.isFinite(d.getTime())) return "—";
+
+  try {
+    return new Intl.DateTimeFormat("en-AU", {
+      timeZone: CAL_TIMEZONE_IANA,
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }).format(d);
+  } catch {
+    return d.toLocaleString();
+  }
+}
+
+function updateLastRefreshed(dateObj) {
+  const ids = ["dataRefreshed", "data-refreshed", "lastRefreshed", "last-refreshed"];
+  const el = ids.map(id => document.getElementById(id)).find(Boolean);
+  if (!el) return;
+
+  // Keep it short and auditable
+  el.textContent = `Data last refreshed: ${formatUiDateTime(dateObj)} (${CAL_TIMEZONE_LABEL})`;
+}
+
 /* ---------------------------
    CONFIG LOADERS
 ---------------------------- */
@@ -181,45 +218,28 @@ function tileClassFor(t) {
   return `tile tile--${cls}`;
 }
 
-function formatTileTime(isoTs){
-  try{
-    const d = new Date(isoTs);
-    return d.toLocaleString("en-AU", {
-      timeZone: "Australia/Hobart",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  }catch{
-    return new Date(isoTs).toLocaleString();
-  }
-}
-
 function tileValueHtml(t) {
   if (t.error) {
     return `<div class="tile-value">—</div><div class="tile-sub">Error / missing</div>`;
   }
   return `<div class="tile-value">${formatFnu(t.value)}</div>
-          <div class="tile-sub">${formatTileTime(t.timestamp)}${t.stale? "9stale)": ""}</div>;
+          <div class="tile-sub">${new Date(t.timestamp).toLocaleString()}${t.stale ? " (stale)" : ""}</div>`;
 }
 
-ffunction tileTitleParts(stationName, level){
-  return { site: stationName, level: String(level).toUpperCase() };
+function tileTitle(stationName, level) {
+  return `${stationName} – ${String(level).toUpperCase()}`;
 }
 
 /**
- * NOTE: This adds `tile--span2` for stations with a single sensor.
- * For it to do anything visually, your CSS needs:
- *   .tile--span2 { grid-column: 1 / -1; }
- * (You already started doing this.)
+ * NOTE:
+ * - Adds `tile--span2` for stations with a single sensor (you already use this in CSS).
+ * - Adds `tile--single` for single-sensor stations so you can centre content cleanly via CSS.
  */
 function renderTilesInto(container, tiles) {
   container.innerHTML = tiles
     .map(t => {
       const title = tileTitle(t.stationName, t.level);
-      const spanClass = t.sensorCount === 1 ? " tile--span2" : "";
+      const spanClass = t.sensorCount === 1 ? " tile--span2 tile--single" : "";
       return `
         <button class="${tileClassFor(t)}${spanClass}" data-station="${t.stationId}" aria-label="${escapeHtml(title)}">
           <div class="tile-title">${escapeHtml(title)}</div>
@@ -352,6 +372,9 @@ async function renderDualTurbidityTiles(stations) {
     if (!tiles15.length) legacy.innerHTML = `<div class="tiles-loading">No turbidity links configured.</div>`;
     else renderTilesInto(legacy, tiles15);
   }
+
+  // Update "last refreshed" indicator (if present)
+  updateLastRefreshed(new Date());
 
   // Merge summaries for map popup rendering
   const merged = {};
@@ -779,5 +802,3 @@ function initChartsPage(stations) {
     if (calHost) calHost.innerHTML = `<div class="small subtle">${msg}</div>`;
   }
 })();
-
-
