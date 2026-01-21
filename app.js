@@ -33,6 +33,9 @@ const TURBIDITY_THRESHOLDS = {
   }
 };
 
+// Sites with only one sensor should render last in each tile panel
+const SINGLE_SENSOR_SITES = new Set(["estuary", "grayling"]);
+
 async function loadStations() {
   const res = await fetch("/stations.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load stations.json");
@@ -280,6 +283,26 @@ async function buildTurbidityTiles(stations, windowKey) {
       }
     }
   }
+
+  // Enforce tile order:
+  // - Multi-sensor sites first
+  // - Within each station: Top then Bottom
+  // - Single-sensor sites (Estuary, Grayling) last
+  tiles.sort((a, b) => {
+    const aSingle = SINGLE_SENSOR_SITES.has(String(a.stationId || "").toLowerCase());
+    const bSingle = SINGLE_SENSOR_SITES.has(String(b.stationId || "").toLowerCase());
+
+    if (aSingle !== bSingle) return aSingle ? 1 : -1;
+
+    if (a.stationId === b.stationId) {
+      const order = { top: 0, bottom: 1 };
+      const ao = order[String(a.level || "").toLowerCase()] ?? 9;
+      const bo = order[String(b.level || "").toLowerCase()] ?? 9;
+      return ao - bo;
+    }
+
+    return String(a.stationName || "").localeCompare(String(b.stationName || ""));
+  });
 
   const summary = {};
   for (const t of tiles) {
@@ -702,4 +725,4 @@ function initChartsPage(stations) {
     const calHost = document.getElementById("calibration-table");
     if (calHost) calHost.innerHTML = `<div class="small subtle">${msg}</div>`;
   }
-})();
+})();``
