@@ -56,6 +56,23 @@ function getQueryParam(key) {
 }
 
 /* ---------------------------
+   Formatting helpers
+---------------------------- */
+function formatFirstLetterCapital(str) {
+  const s = String(str ?? "").trim();
+  if (!s) return "";
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+}
+
+function sensorLabel(level) {
+  const s = String(level ?? "").trim().toLowerCase();
+  if (s === "top") return "Top";
+  if (s === "bottom") return "Bottom";
+  // fallback: first letter capitalised
+  return s ? (s.charAt(0).toUpperCase() + s.slice(1)) : "";
+}
+
+/* ---------------------------
    LIVE DATA (public/data)
 ---------------------------- */
 async function fetchLatestFromEagleDataUrl(dataUrl) {
@@ -181,7 +198,7 @@ function tileValueHtml(t) {
 }
 
 function tileTitle(stationName, level) {
-  return `${stationName} – ${String(level).toUpperCase()}`;
+  return `${stationName} – ${sensorLabel(level)}`;
 }
 
 function renderTilesInto(container, tiles) {
@@ -445,12 +462,6 @@ function updateMapPopups(stations, summaryByStation) {
 /* ---------------------------
    CALIBRATION PAGE
 ---------------------------- */
-function formatFirstLetterCapital(str) {
-  const s = String(str ?? "").trim();
-  if (!s) return "";
-  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-}
-
 async function renderCalibrationTable() {
   const host = document.getElementById("calibration-table");
   if (!host) return;
@@ -579,7 +590,7 @@ function renderChartsByStation(stations, stationId) {
       if (!url) continue;
 
       blocks.push(
-        buildChartCard(url, `${s.name} – ${String(level).toUpperCase()} – ${p.label}`)
+        buildChartCard(url, `${s.name} – ${sensorLabel(level)} – ${p.label}`)
       );
     }
   }
@@ -607,7 +618,7 @@ function renderChartsByParameter(stations, paramKey) {
       if (paramKey === "temp") label = "Temperature";
       if (paramKey === "turbidity") label = "Turbidity";
 
-      blocks.push(buildChartCard(url, `${s.name} – ${String(level).toUpperCase()} – ${label}`));
+      blocks.push(buildChartCard(url, `${s.name} – ${sensorLabel(level)} – ${label}`));
     }
   }
 
