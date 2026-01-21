@@ -499,12 +499,30 @@ h2{margin:0 0 12px 0; font-size:16px}
   text-shadow: 0 1px 12px rgba(0,0,0,.40);
 }
 
-/* NEW: Single-sensor tiles (Estuary / Grayling etc.) — vertically center content */
+/* Single-sensor tiles (Estuary / Grayling etc.) — true visual centring */
 .tile--single{
   display:flex;
   flex-direction:column;
   justify-content:center;
-  min-height: 104px; /* keeps them from looking squashed vs paired tiles */
+  min-height: 140px;           /* gives enough height to read as “deliberate” */
+  padding-top: 0;              /* avoid looking top-heavy */
+  padding-bottom: 0;
+}
+
+/* Remove top margins inside single tiles and use consistent spacing */
+.tile--single .tile-title,
+.tile--single .tile-value,
+.tile--single .tile-sub{
+  margin-top: 0 !important;
+}
+
+.tile--single{
+  gap: 8px;                    /* replaces margin-top spacing */
+}
+
+/* Keep value big but not pushing content upward */
+.tile--single .tile-value{
+  line-height: 1.05;
 }
 
 /* Prevent hover “jump” from flex + transform looking odd */
