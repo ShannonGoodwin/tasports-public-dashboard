@@ -6,10 +6,31 @@
    - Charts: embeds
 ========================================================= */
 
+/**
+ * Turbidity triggers are window-specific (6d vs 15d) and site-specific.
+ * Only apply to: seagrass, scallops, grayling.
+ *
+ * NOTE: Values below implemented per the trigger table provided.
+ * - Seagrass/Scallops:
+ *    6d: amber 4.0, red 4.33
+ *   15d: amber 3.0, red 3.3
+ * - Grayling:
+ *    6d: amber 8.5, red 15.0
+ *   15d: amber 4.9, red 16.5
+ */
 const TURBIDITY_THRESHOLDS = {
-  seagrass: { amber: 3.0, red: 4.33 },
-  scallops: { amber: 3.0, red: 4.33 },
-  grayling: { amber: 8.5, red: 16.5 }
+  seagrass: {
+    "6d": { amber: 4.0, red: 4.33 },
+    "15d": { amber: 3.0, red: 3.3 }
+  },
+  scallops: {
+    "6d": { amber: 4.0, red: 4.33 },
+    "15d": { amber: 3.0, red: 3.3 }
+  },
+  grayling: {
+    "6d": { amber: 8.5, red: 15.0 },
+    "15d": { amber: 4.9, red: 16.5 }
+  }
 };
 
 async function loadStations() {
@@ -80,15 +101,33 @@ function formatFnu(value) {
 
 /* ---------------------------
    THRESHOLDS (turbidity)
-   - Only apply to: seagrass, scallops, grayling
+   - Apply only where thresholds exist
+   - Thresholds vary by windowKey ("6d" vs "15d")
    - Others render "neutral"
 ---------------------------- */
-function classifyTurbidity(stationId, value) {
-  const th = TURBIDITY_THRESHOLDS[String(stationId || "").toLowerCase()];
-  if (!th) return "neutral"; // no triggers apply for this site
+function classifyTurbidity(stationId, windowKey, value) {
+  const sid = String(stationId || "").toLowerCase();
+  const wk = windowKey === "6d" ? "6d" : "15d"; // default to 15d if anything odd comes through
 
-  if (value >= th.red) return "red";
-  if (value >= th.amber) return "amber";
+  const stationRec = TURBIDITY_THRESHOLDS[sid];
+  const th = stationRec?.[wk];
+
+  if (!th) return "neutral"; // no triggers apply for this site/window
+
+  // Defensive: if thresholds ever get mis-ordered, force sensible ordering
+  const amber = Number(th.amber);
+  const red = Number(th.red);
+  if (!Number.isFinite(amber) || !Number.isFinite(red)) return "neutral";
+
+  const hi = Math.max(amber, red);
+  const lo = Math.min(amber, red);
+
+  // If the source data has amber/red swapped, treat the higher value as red.
+  const amberEff = lo;
+  const redEff = hi;
+
+  if (value >= redEff) return "red";
+  if (value >= amberEff) return "amber";
   return "green";
 }
 
@@ -129,7 +168,7 @@ function tileClassFor(t) {
   if (t.error) return "tile tile--error";
   if (t.stale) return "tile tile--stale";
 
-  const cls = classifyTurbidity(t.stationId, t.value);
+  const cls = classifyTurbidity(t.stationId, t.windowKey, t.value);
   return `tile tile--${cls}`;
 }
 
@@ -419,13 +458,6 @@ async function renderCalibrationTable() {
 
     const data = await res.json();
 
-    const tzNoteHtml = `
-      <div class="small subtle" style="margin-top:6px;">
-        All times are shown in Australian Eastern Daylight Time (AEDT).
-      </div>
-    `;
-
-    // Preferred schema: { items: [ {station, sensor, last_calibrated, notes}, ... ], last_updated }
     if (Array.isArray(data?.items)) {
       const rows = data.items
         .slice()
@@ -435,16 +467,8 @@ async function renderCalibrationTable() {
           return sa.localeCompare(sb);
         })
         .map(it => {
-          // Station: Title Case
-          const station = escapeHtml(
-            it.station ? it.station.charAt(0).toUpperCase() + it.station.slice(1) : ""
-          );
-
-          // Sensor: Sentence case (Top/Bottom)
-          const sensor = escapeHtml(
-            it.sensor ? it.sensor.charAt(0).toUpperCase() + it.sensor.slice(1).toLowerCase() : ""
-          );
-
+          const station = escapeHtml(it.station || "");
+          const sensor = escapeHtml((it.sensor || "").toUpperCase());
           const date = escapeHtml(it.last_calibrated || "—");
           const notes = escapeHtml(it.notes || "");
           return `<tr><td>${station}</td><td>${sensor}</td><td>${date}</td><td>${notes}</td></tr>`;
@@ -455,26 +479,21 @@ async function renderCalibrationTable() {
         ? `
           <table class="cal-table">
             <thead>
-              <tr><th>Station</th><th>Sensor</th><th>Last calibrated (Date & Time)</th><th>Notes</th></tr>
+              <tr><th>Station</th><th>Sensor</th><th>Last calibrated</th><th>Notes</th></tr>
             </thead>
             <tbody>${rows}</tbody>
           </table>
           ${data?.last_updated ? `<div class="small subtle" style="margin-top:8px;">Last updated: ${escapeHtml(data.last_updated)}</div>` : ""}
-          ${tzNoteHtml}
         `
         : `<div class="small subtle">Calibration dates are not configured.</div>`;
 
       return;
     }
 
-    // Legacy schema: { sites: { "Site name": "YYYY-MM-DD", ... }, last_updated }
     const sites = data?.sites || {};
     const rows = Object.entries(sites)
       .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
-      .map(([site, date]) => {
-        const siteName = site ? String(site).charAt(0).toUpperCase() + String(site).slice(1) : "";
-        return `<tr><td>${escapeHtml(siteName)}</td><td>${escapeHtml(date || "—")}</td></tr>`;
-      })
+      .map(([site, date]) => `<tr><td>${escapeHtml(site)}</td><td>${escapeHtml(date || "—")}</td></tr>`)
       .join("");
 
     host.innerHTML = rows
@@ -484,7 +503,6 @@ async function renderCalibrationTable() {
           <tbody>${rows}</tbody>
         </table>
         ${data?.last_updated ? `<div class="small subtle" style="margin-top:8px;">Last updated: ${escapeHtml(data.last_updated)}</div>` : ""}
-        ${tzNoteHtml}
       `
       : `<div class="small subtle">Calibration dates are not configured.</div>`;
   } catch (e) {
