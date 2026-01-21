@@ -33,6 +33,9 @@ const TURBIDITY_THRESHOLDS = {
   }
 };
 
+const TILE_SITE_ORDER = ["forth", "offshore", "scallops", "seagrass", "estuary", "grayling"];
+
+
 async function loadStations() {
   const res = await fetch("/stations.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load stations.json");
@@ -208,8 +211,16 @@ function renderTilesInto(container, tiles) {
 async function buildTurbidityTiles(stations, windowKey) {
   const tiles = [];
 
-  for (const s of stations) {
+  // Sort stations into a deliberate display order
+  const orderIndex = (id) => {
+    const i = TILE_SITE_ORDER.indexOf(String(id || "").toLowerCase());
+    return i === -1 ? 999 : i;
+  };
+  const sortedStations = stations.slice().sort((a, b) => orderIndex(a.id) - orderIndex(b.id));
+
+  for (const s of sortedStations) {
     const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
+    const sensorCount = sensors.length;
 
     for (const level of sensors) {
       const url = getTurbidityUrl(s, level, windowKey);
@@ -220,6 +231,7 @@ async function buildTurbidityTiles(stations, windowKey) {
           stationName: s.name,
           level,
           windowKey,
+          sensorCount,
           error: true,
           reason: `missing turbidity ${windowKey} URL`
         });
@@ -234,6 +246,7 @@ async function buildTurbidityTiles(stations, windowKey) {
             stationName: s.name,
             level,
             windowKey,
+            sensorCount,
             error: true,
             reason: "no data lines found"
           });
@@ -245,6 +258,7 @@ async function buildTurbidityTiles(stations, windowKey) {
           stationName: s.name,
           level,
           windowKey,
+          sensorCount,
           value: latest.value,
           timestamp: latest.timestamp,
           stale: isStale(latest.timestamp),
@@ -257,6 +271,7 @@ async function buildTurbidityTiles(stations, windowKey) {
           stationName: s.name,
           level,
           windowKey,
+          sensorCount,
           error: true,
           reason: e?.message || "fetch error"
         });
@@ -264,6 +279,7 @@ async function buildTurbidityTiles(stations, windowKey) {
     }
   }
 
+  // Build summary (unchanged logic)
   const summary = {};
   for (const t of tiles) {
     if (!summary[t.stationId]) summary[t.stationId] = { byWindow: { "6d": {}, "15d": {} } };
@@ -276,46 +292,26 @@ async function buildTurbidityTiles(stations, windowKey) {
   return { tiles, summary };
 }
 
-async function renderDualTurbidityTiles(stations) {
-  const el6 = document.getElementById("turbidity-tiles-6d");
-  const el15 = document.getElementById("turbidity-tiles-15d");
-  const legacy = document.getElementById("turbidity-tiles");
+function renderTilesInto(container, tiles) {
+  container.innerHTML = tiles
+    .map(t => {
+      const title = tileTitle(t.stationName, t.level);
+      const spanClass = (t.sensorCount === 1) ? " tile--span2" : ""; // single-sensor: full width
+      return `
+        <button class="${tileClassFor(t)}${spanClass}" data-station="${t.stationId}" aria-label="${escapeHtml(title)}">
+          <div class="tile-title">${escapeHtml(title)}</div>
+          ${tileValueHtml(t)}
+        </button>
+      `;
+    })
+    .join("");
 
-  if (el6) el6.innerHTML = `<div class="tiles-loading">Loading 6-day turbidity…</div>`;
-  if (el15) el15.innerHTML = `<div class="tiles-loading">Loading 15-day turbidity…</div>`;
-  if (!el6 && !el15 && legacy) legacy.innerHTML = `<div class="tiles-loading">Loading turbidity…</div>`;
-
-  const [{ tiles: tiles6, summary: sum6 }, { tiles: tiles15, summary: sum15 }] = await Promise.all([
-    buildTurbidityTiles(stations, "6d"),
-    buildTurbidityTiles(stations, "15d")
-  ]);
-
-  if (el6) {
-    if (!tiles6.length) el6.innerHTML = `<div class="tiles-loading">No 6-day links configured.</div>`;
-    else renderTilesInto(el6, tiles6);
-  }
-
-  if (el15) {
-    if (!tiles15.length) el15.innerHTML = `<div class="tiles-loading">No 15-day links configured.</div>`;
-    else renderTilesInto(el15, tiles15);
-  }
-
-  if (!el6 && !el15 && legacy) {
-    if (!tiles15.length) legacy.innerHTML = `<div class="tiles-loading">No turbidity links configured.</div>`;
-    else renderTilesInto(legacy, tiles15);
-  }
-
-  const merged = {};
-  for (const sid of new Set([...Object.keys(sum6), ...Object.keys(sum15)])) {
-    merged[sid] = {
-      byWindow: {
-        "6d": sum6?.[sid]?.byWindow?.["6d"] || {},
-        "15d": sum15?.[sid]?.byWindow?.["15d"] || {}
-      }
-    };
-  }
-
-  return merged;
+  container.querySelectorAll("button[data-station]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-station");
+      window.location.href = `charts.html?station=${encodeURIComponent(id)}`;
+    });
+  });
 }
 
 /* ---------------------------
@@ -686,4 +682,5 @@ function initChartsPage(stations) {
     if (calHost) calHost.innerHTML = `<div class="small subtle">${msg}</div>`;
   }
 })();
+
 
