@@ -10,7 +10,7 @@
  * Turbidity triggers are window-specific (6d vs 15d) and site-specific.
  * Only apply to: seagrass, scallops, grayling.
  *
- * NOTE: Values below implemented per the trigger table provided.
+ * Implemented per trigger table provided:
  * - Seagrass/Scallops:
  *    6d: amber 4.0, red 4.33
  *   15d: amber 3.0, red 3.3
@@ -33,9 +33,19 @@ const TURBIDITY_THRESHOLDS = {
   }
 };
 
-const TILE_SITE_ORDER = ["forth", "offshore", "scallops", "seagrass", "estuary", "grayling"];
+// Display order for tiles (both panels)
+const TILE_SITE_ORDER = ["forth", "offshore", "estuary", "scallops", "grayling", "seagrass"];
 
+// Preferred sensor order everywhere
+const SENSOR_ORDER = ["top", "bottom"];
 
+// Timezone label + (where supported) formatting timezone
+const CAL_TIMEZONE_LABEL = "ADST";
+const CAL_TIMEZONE_IANA = "Australia/Hobart";
+
+/* ---------------------------
+   CONFIG LOADERS
+---------------------------- */
 async function loadStations() {
   const res = await fetch("/stations.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load stations.json");
@@ -110,24 +120,20 @@ function formatFnu(value) {
 ---------------------------- */
 function classifyTurbidity(stationId, windowKey, value) {
   const sid = String(stationId || "").toLowerCase();
-  const wk = windowKey === "6d" ? "6d" : "15d"; // default to 15d if anything odd comes through
+  const wk = windowKey === "6d" ? "6d" : "15d";
 
   const stationRec = TURBIDITY_THRESHOLDS[sid];
   const th = stationRec?.[wk];
 
   if (!th) return "neutral"; // no triggers apply for this site/window
 
-  // Defensive: if thresholds ever get mis-ordered, force sensible ordering
   const amber = Number(th.amber);
   const red = Number(th.red);
   if (!Number.isFinite(amber) || !Number.isFinite(red)) return "neutral";
 
-  const hi = Math.max(amber, red);
-  const lo = Math.min(amber, red);
-
-  // If the source data has amber/red swapped, treat the higher value as red.
-  const amberEff = lo;
-  const redEff = hi;
+  // Defensive: if values ever get swapped, treat higher as red
+  const amberEff = Math.min(amber, red);
+  const redEff = Math.max(amber, red);
 
   if (value >= redEff) return "red";
   if (value >= amberEff) return "amber";
@@ -187,12 +193,19 @@ function tileTitle(stationName, level) {
   return `${stationName} – ${String(level).toUpperCase()}`;
 }
 
+/**
+ * NOTE: This adds `tile--span2` for stations with a single sensor.
+ * For it to do anything visually, your CSS needs:
+ *   .tile--span2 { grid-column: 1 / -1; }
+ * (You already started doing this.)
+ */
 function renderTilesInto(container, tiles) {
   container.innerHTML = tiles
     .map(t => {
       const title = tileTitle(t.stationName, t.level);
+      const spanClass = t.sensorCount === 1 ? " tile--span2" : "";
       return `
-        <button class="${tileClassFor(t)}" data-station="${t.stationId}" aria-label="${escapeHtml(title)}">
+        <button class="${tileClassFor(t)}${spanClass}" data-station="${t.stationId}" aria-label="${escapeHtml(title)}">
           <div class="tile-title">${escapeHtml(title)}</div>
           ${tileValueHtml(t)}
         </button>
@@ -219,7 +232,10 @@ async function buildTurbidityTiles(stations, windowKey) {
   const sortedStations = stations.slice().sort((a, b) => orderIndex(a.id) - orderIndex(b.id));
 
   for (const s of sortedStations) {
-    const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
+    const sensorsRaw = Array.isArray(s.sensors) && s.sensors.length ? s.sensors : ["top"];
+    const sensors = SENSOR_ORDER.filter(x => sensorsRaw.includes(x))
+      .concat(sensorsRaw.filter(x => !SENSOR_ORDER.includes(x)));
+
     const sensorCount = sensors.length;
 
     for (const level of sensors) {
@@ -279,7 +295,7 @@ async function buildTurbidityTiles(stations, windowKey) {
     }
   }
 
-  // Build summary (unchanged logic)
+  // Summary used for map popups
   const summary = {};
   for (const t of tiles) {
     if (!summary[t.stationId]) summary[t.stationId] = { byWindow: { "6d": {}, "15d": {} } };
@@ -292,26 +308,47 @@ async function buildTurbidityTiles(stations, windowKey) {
   return { tiles, summary };
 }
 
-function renderTilesInto(container, tiles) {
-  container.innerHTML = tiles
-    .map(t => {
-      const title = tileTitle(t.stationName, t.level);
-      const spanClass = (t.sensorCount === 1) ? " tile--span2" : ""; // single-sensor: full width
-      return `
-        <button class="${tileClassFor(t)}${spanClass}" data-station="${t.stationId}" aria-label="${escapeHtml(title)}">
-          <div class="tile-title">${escapeHtml(title)}</div>
-          ${tileValueHtml(t)}
-        </button>
-      `;
-    })
-    .join("");
+async function renderDualTurbidityTiles(stations) {
+  const el6 = document.getElementById("turbidity-tiles-6d");
+  const el15 = document.getElementById("turbidity-tiles-15d");
+  const legacy = document.getElementById("turbidity-tiles");
 
-  container.querySelectorAll("button[data-station]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-station");
-      window.location.href = `charts.html?station=${encodeURIComponent(id)}`;
-    });
-  });
+  if (el6) el6.innerHTML = `<div class="tiles-loading">Loading 6-day turbidity…</div>`;
+  if (el15) el15.innerHTML = `<div class="tiles-loading">Loading 15-day turbidity…</div>`;
+  if (!el6 && !el15 && legacy) legacy.innerHTML = `<div class="tiles-loading">Loading turbidity…</div>`;
+
+  const [{ tiles: tiles6, summary: sum6 }, { tiles: tiles15, summary: sum15 }] = await Promise.all([
+    buildTurbidityTiles(stations, "6d"),
+    buildTurbidityTiles(stations, "15d")
+  ]);
+
+  if (el6) {
+    if (!tiles6.length) el6.innerHTML = `<div class="tiles-loading">No 6-day links configured.</div>`;
+    else renderTilesInto(el6, tiles6);
+  }
+
+  if (el15) {
+    if (!tiles15.length) el15.innerHTML = `<div class="tiles-loading">No 15-day links configured.</div>`;
+    else renderTilesInto(el15, tiles15);
+  }
+
+  if (!el6 && !el15 && legacy) {
+    if (!tiles15.length) legacy.innerHTML = `<div class="tiles-loading">No turbidity links configured.</div>`;
+    else renderTilesInto(legacy, tiles15);
+  }
+
+  // Merge summaries for map popup rendering
+  const merged = {};
+  for (const sid of new Set([...Object.keys(sum6), ...Object.keys(sum15)])) {
+    merged[sid] = {
+      byWindow: {
+        "6d": sum6?.[sid]?.byWindow?.["6d"] || {},
+        "15d": sum15?.[sid]?.byWindow?.["15d"] || {}
+      }
+    };
+  }
+
+  return merged;
 }
 
 /* ---------------------------
@@ -320,7 +357,6 @@ function renderTilesInto(container, tiles) {
 let __mapState = null;
 
 function tooltipPlacementFor(stationId) {
-  // Default placement
   const def = { direction: "right", offset: [10, 0] };
 
   // Fix overlap: Estuary + Seagrass are close
@@ -392,8 +428,8 @@ function popupHtmlForStation(station, stationSummary) {
   function linesFor(windowKey, label) {
     const rec = stationSummary?.byWindow?.[windowKey] || {};
 
-    const preferred = ["top", "bottom"];
-    const lvls = preferred.filter(k => rec[k]).concat(Object.keys(rec).filter(k => !preferred.includes(k)));
+    // Always show TOP then BOTTOM if present
+    const lvls = SENSOR_ORDER.filter(k => rec[k]).concat(Object.keys(rec).filter(k => !SENSOR_ORDER.includes(k)));
 
     if (!lvls.length) return [`<span class="subtle small">${escapeHtml(label)}: not configured</span>`];
 
@@ -441,6 +477,39 @@ function updateMapPopups(stations, summaryByStation) {
 /* ---------------------------
    CALIBRATION PAGE
 ---------------------------- */
+function titleCase(s) {
+  const str = String(s || "").trim();
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function formatCalDateTime(value) {
+  const v = String(value ?? "").trim();
+  if (!v || v === "—") return "—";
+  if (/^tbc$/i.test(v)) return "TBC";
+
+  const d = new Date(v);
+  if (Number.isFinite(d.getTime())) {
+    try {
+      // Prefer consistent AU-style date/time and force Hobart timezone where supported
+      return d.toLocaleString("en-AU", {
+        timeZone: CAL_TIMEZONE_IANA,
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    } catch {
+      // Fallback if timezone option not supported
+      return d.toLocaleString();
+    }
+  }
+
+  // If it's not parseable (but not TBC), show as-is
+  return v;
+}
+
 async function renderCalibrationTable() {
   const host = document.getElementById("calibration-table");
   if (!host) return;
@@ -463,42 +532,49 @@ async function renderCalibrationTable() {
           return sa.localeCompare(sb);
         })
         .map(it => {
-          const station = escapeHtml(it.station || "");
-          const sensor = escapeHtml((it.sensor || "").toUpperCase());
-          const date = escapeHtml(it.last_calibrated || "—");
+          const station = escapeHtml(titleCase(it.station || ""));
+          const sensor = escapeHtml(titleCase(it.sensor || ""));
+          const date = escapeHtml(formatCalDateTime(it.last_calibrated || "—"));
           const notes = escapeHtml(it.notes || "");
           return `<tr><td>${station}</td><td>${sensor}</td><td>${date}</td><td>${notes}</td></tr>`;
         })
         .join("");
 
+      const lastUpdated = data?.last_updated ? formatCalDateTime(data.last_updated) : "";
+
       host.innerHTML = rows
         ? `
           <table class="cal-table">
             <thead>
-              <tr><th>Station</th><th>Sensor</th><th>Last calibrated</th><th>Notes</th></tr>
+              <tr><th>Station</th><th>Sensor</th><th>Last calibrated (date/time)</th><th>Notes</th></tr>
             </thead>
             <tbody>${rows}</tbody>
           </table>
-          ${data?.last_updated ? `<div class="small subtle" style="margin-top:8px;">Last updated: ${escapeHtml(data.last_updated)}</div>` : ""}
+          ${lastUpdated ? `<div class="small subtle" style="margin-top:8px;">Last updated: ${escapeHtml(lastUpdated)}</div>` : ""}
+          <div class="small subtle" style="margin-top:6px;">All times shown in ${CAL_TIMEZONE_LABEL}.</div>
         `
         : `<div class="small subtle">Calibration dates are not configured.</div>`;
 
       return;
     }
 
+    // Legacy fallback shape
     const sites = data?.sites || {};
     const rows = Object.entries(sites)
       .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
-      .map(([site, date]) => `<tr><td>${escapeHtml(site)}</td><td>${escapeHtml(date || "—")}</td></tr>`)
+      .map(([site, date]) => `<tr><td>${escapeHtml(titleCase(site))}</td><td>${escapeHtml(formatCalDateTime(date || "—"))}</td></tr>`)
       .join("");
+
+    const lastUpdated = data?.last_updated ? formatCalDateTime(data.last_updated) : "";
 
     host.innerHTML = rows
       ? `
         <table class="cal-table">
-          <thead><tr><th>Site</th><th>Last calibration</th></tr></thead>
+          <thead><tr><th>Site</th><th>Last calibration (date/time)</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
-        ${data?.last_updated ? `<div class="small subtle" style="margin-top:8px;">Last updated: ${escapeHtml(data.last_updated)}</div>` : ""}
+        ${lastUpdated ? `<div class="small subtle" style="margin-top:8px;">Last updated: ${escapeHtml(lastUpdated)}</div>` : ""}
+        <div class="small subtle" style="margin-top:6px;">All times shown in ${CAL_TIMEZONE_LABEL}.</div>
       `
       : `<div class="small subtle">Calibration dates are not configured.</div>`;
   } catch (e) {
@@ -507,6 +583,9 @@ async function renderCalibrationTable() {
   }
 }
 
+/* ---------------------------
+   SHARED UTILS
+---------------------------- */
 function escapeHtml(s) {
   return String(s ?? "")
     .replace(/&/g, "&amp;")
@@ -553,24 +632,24 @@ function renderChartsByStation(stations, stationId) {
   msg.textContent = "";
   const blocks = [];
 
-  const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
+  const sensorsRaw = Array.isArray(s.sensors) && s.sensors.length ? s.sensors : ["top"];
+  // Force TOP then BOTTOM (regardless of stations.json ordering)
+  const sensors = SENSOR_ORDER.filter(x => sensorsRaw.includes(x))
+    .concat(sensorsRaw.filter(x => !SENSOR_ORDER.includes(x)));
 
   // Parameter-first ordering, then TOP/BOTTOM within each parameter
   const paramOrder = [
     { key: "turbidity", label: "Turbidity" },
-    { key: "do",        label: "Dissolved oxygen" },
-    { key: "ph",        label: "pH" },
-    { key: "temp",      label: "Temperature" }
+    { key: "do", label: "Dissolved oxygen" },
+    { key: "ph", label: "pH" },
+    { key: "temp", label: "Temperature" }
   ];
 
   for (const p of paramOrder) {
     for (const level of sensors) {
       const url = s?.charts?.[level]?.[p.key] || "";
       if (!url) continue;
-
-      blocks.push(
-        buildChartCard(url, `${s.name} – ${String(level).toUpperCase()} – ${p.label}`)
-      );
+      blocks.push(buildChartCard(url, `${s.name} – ${titleCase(level)} – ${p.label}`));
     }
   }
 
@@ -586,18 +665,20 @@ function renderChartsByParameter(stations, paramKey) {
   msg.textContent = "";
   const blocks = [];
 
+  let label = paramKey.toUpperCase();
+  if (paramKey === "do") label = "Dissolved oxygen";
+  if (paramKey === "temp") label = "Temperature";
+  if (paramKey === "turbidity") label = "Turbidity";
+
   for (const s of stations) {
-    const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
+    const sensorsRaw = Array.isArray(s.sensors) && s.sensors.length ? s.sensors : ["top"];
+    const sensors = SENSOR_ORDER.filter(x => sensorsRaw.includes(x))
+      .concat(sensorsRaw.filter(x => !SENSOR_ORDER.includes(x)));
+
     for (const level of sensors) {
       const url = s?.charts?.[level]?.[paramKey] || "";
       if (!url) continue;
-
-      let label = paramKey.toUpperCase();
-      if (paramKey === "do") label = "Dissolved oxygen";
-      if (paramKey === "temp") label = "Temperature";
-      if (paramKey === "turbidity") label = "Turbidity";
-
-      blocks.push(buildChartCard(url, `${s.name} – ${String(level).toUpperCase()} – ${label}`));
+      blocks.push(buildChartCard(url, `${s.name} – ${titleCase(level)} – ${label}`));
     }
   }
 
@@ -682,5 +763,3 @@ function initChartsPage(stations) {
     if (calHost) calHost.innerHTML = `<div class="small subtle">${msg}</div>`;
   }
 })();
-
-
