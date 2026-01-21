@@ -556,17 +556,30 @@ function renderChartsByStation(stations, stationId) {
 
   msg.textContent = "";
   const blocks = [];
+
   const sensors = Array.isArray(s.sensors) ? s.sensors : ["top"];
 
-  for (const level of sensors) {
-    const charts = s?.charts?.[level] || {};
-    if (charts.turbidity) blocks.push(buildChartCard(charts.turbidity, `${s.name} – ${String(level).toUpperCase()} – Turbidity`));
-    if (charts.do) blocks.push(buildChartCard(charts.do, `${s.name} – ${String(level).toUpperCase()} – Dissolved oxygen`));
-    if (charts.ph) blocks.push(buildChartCard(charts.ph, `${s.name} – ${String(level).toUpperCase()} – pH`));
-    if (charts.temp) blocks.push(buildChartCard(charts.temp, `${s.name} – ${String(level).toUpperCase()} – Temperature`));
+  // Parameter-first ordering, then TOP/BOTTOM within each parameter
+  const paramOrder = [
+    { key: "turbidity", label: "Turbidity" },
+    { key: "do",        label: "Dissolved oxygen" },
+    { key: "ph",        label: "pH" },
+    { key: "temp",      label: "Temperature" }
+  ];
+
+  for (const p of paramOrder) {
+    for (const level of sensors) {
+      const url = s?.charts?.[level]?.[p.key] || "";
+      if (!url) continue;
+
+      blocks.push(
+        buildChartCard(url, `${s.name} – ${String(level).toUpperCase()} – ${p.label}`)
+      );
+    }
   }
 
-  container.innerHTML = blocks.join("") || `<div class="small subtle">No charts configured for this station yet.</div>`;
+  container.innerHTML =
+    blocks.join("") || `<div class="small subtle">No charts configured for this station yet.</div>`;
 }
 
 function renderChartsByParameter(stations, paramKey) {
@@ -673,3 +686,4 @@ function initChartsPage(stations) {
     if (calHost) calHost.innerHTML = `<div class="small subtle">${msg}</div>`;
   }
 })();
+
