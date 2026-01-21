@@ -46,16 +46,21 @@
 
         <div class="status-legend" aria-label="Turbidity status legend">
           <div class="status-legend__title">Turbidity status</div>
-         <div class="status-legend__items">
-  <span class="status-legend__item"><span class="swatch swatch--neutral"></span> No trigger (informational)</span>
-  <span class="status-legend__item"><span class="swatch swatch--green"></span> Below trigger</span>
-  <span class="status-legend__item"><span class="swatch swatch--amber"></span> Investigation required</span>
-  <span class="status-legend__item"><span class="swatch swatch--red"></span> Trigger exceeded</span>
-  <span class="status-legend__item"><span class="swatch swatch--stale"></span> Stale (&gt;24h)</span>
-  <span class="status-legend__item"><span class="swatch swatch--error"></span> Error / missing</span>
-</div>
+          <div class="status-legend__items">
+            <span class="status-legend__item"><span class="swatch swatch--neutral"></span> No trigger (informational)</span>
+            <span class="status-legend__item"><span class="swatch swatch--green"></span> Below trigger</span>
+            <span class="status-legend__item"><span class="swatch swatch--amber"></span> Investigation required</span>
+            <span class="status-legend__item"><span class="swatch swatch--red"></span> Trigger exceeded</span>
+            <span class="status-legend__item"><span class="swatch swatch--stale"></span> Stale (&gt;24h)</span>
+            <span class="status-legend__item"><span class="swatch swatch--error"></span> Error / missing</span>
+          </div>
         </div>
       </div>
+
+      <!-- NEW: unit note -->
+      <p class="small subtle" style="margin: 6px 0 12px 0;">
+        Turbidity is reported in Formazin Nephelometric Units (FNU). FNU and NTU are considered directly comparable for environmental monitoring applications.
+      </p>
 
       <div class="tiles-split">
         <div class="tiles-panel">
@@ -94,4 +99,3 @@
   <script src="/app.js"></script>
 </body>
 </html>
-
