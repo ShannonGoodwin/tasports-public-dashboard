@@ -1,16 +1,16 @@
 {
-  "last_updated": "2026-01-21T14:30",
+  "last_updated": "21 Jan 2026 14:30",
   "items": [
     {
       "station": "forth",
       "sensor": "top",
-      "last_calibrated": "2026-01-05T09:15",
+      "last_calibrated": "05 Jan 2026 09:15",
       "notes": ""
     },
     {
       "station": "forth",
       "sensor": "bottom",
-      "last_calibrated": "2026-01-05T09:45",
+      "last_calibrated": "05 Jan 2026 09:45",
       "notes": ""
     },
 
@@ -37,8 +37,34 @@
     {
       "station": "scallops",
       "sensor": "top",
-      "last_calibrated": "2026-01-12T11:20",
+      "last_calibrated": "12 Jan 2026 11:20",
       "notes": ""
     },
     {
       "station": "scallops",
+      "sensor": "bottom",
+      "last_calibrated": "12 Jan 2026 11:35",
+      "notes": ""
+    },
+
+    {
+      "station": "grayling",
+      "sensor": "top",
+      "last_calibrated": "TBC",
+      "notes": "Calibration pending"
+    },
+
+    {
+      "station": "seagrass",
+      "sensor": "top",
+      "last_calibrated": "14 Jan 2026 10:05",
+      "notes": ""
+    },
+    {
+      "station": "seagrass",
+      "sensor": "bottom",
+      "last_calibrated": "14 Jan 2026 10:25",
+      "notes": ""
+    }
+  ]
+}
