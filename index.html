@@ -38,10 +38,15 @@
 
   <main class="layout">
 
+    <!-- =========================
+         TURBIDITY TILES
+    ========================== -->
     <section class="panel">
       <div class="panel-head">
         <div>
           <h2>Turbidity (rolling medians)</h2>
+          <!-- NEW: populated by app.js -->
+          <div id="dataRefreshed" class="small subtle"></div>
         </div>
 
         <div class="status-legend" aria-label="Turbidity status legend">
@@ -57,16 +62,20 @@
         </div>
       </div>
 
-      <!-- NEW: unit note -->
+      <!-- Unit note -->
       <p class="note">
-  Turbidity is shown in <strong>FNU</strong> (telemetry). Trigger values as defined in the Adaptive Monitoring and Management Plan (AMMP) are defined in <strong>NTU</strong>; FNU and NTU are considered comparable for environmental monitoring.
-</p>
-<details class="note-more">
-  <summary>More on units</summary>
-  <p>
-    FNU and NTU are both nephelometric turbidity units reported using different optical configurations; for typical environmental monitoring applications they are treated as comparable.
-  </p>
-</details>
+        Turbidity is shown in <strong>FNU</strong> (telemetry).
+        Trigger values as defined in the Adaptive Monitoring and Management Plan (AMMP) are defined in <strong>NTU</strong>;
+        FNU and NTU are considered comparable for environmental monitoring.
+      </p>
+
+      <details class="note-more">
+        <summary>More on units</summary>
+        <p>
+          FNU and NTU are both nephelometric turbidity units reported using different optical configurations;
+          for typical environmental monitoring applications they are treated as comparable.
+        </p>
+      </details>
 
       <div class="tiles-split">
         <div class="tiles-panel">
@@ -81,6 +90,9 @@
       </div>
     </section>
 
+    <!-- =========================
+         MAP
+    ========================== -->
     <section class="panel panel--map">
       <h2>Site map</h2>
       <div id="map"></div>
@@ -91,8 +103,10 @@
   <footer class="footer">
     <div class="footer__inner">
       <div class="small subtle">
-        Data source: Eagle.io (Xylem telemetry platform). Tiles are derived from anonymous public data links; charts are anonymous public embeds.
-        &nbsp;•&nbsp;<a class="footer__link" href="/calibration.html">Instrument calibration</a>
+        Data source: Eagle.io (Xylem telemetry platform).
+        Tiles are derived from anonymous public data links; charts are anonymous public embeds.
+        &nbsp;•&nbsp;
+        <a class="footer__link" href="/calibration.html">Instrument calibration</a>
       </div>
     </div>
   </footer>
@@ -105,5 +119,3 @@
   <script src="/app.js"></script>
 </body>
 </html>
-
-
