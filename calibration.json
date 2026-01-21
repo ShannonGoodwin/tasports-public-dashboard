@@ -1,20 +1,44 @@
 {
-  "last_updated": "2026-01-19",
+  "last_updated": "2026-01-21T14:30",
   "items": [
-    { "station": "forth", "sensor": "top", "last_calibrated": "2026-01-05", "notes": "" },
-    { "station": "forth", "sensor": "bottom", "last_calibrated": "2026-01-05", "notes": "" },
+    {
+      "station": "forth",
+      "sensor": "top",
+      "last_calibrated": "2026-01-05T09:15",
+      "notes": ""
+    },
+    {
+      "station": "forth",
+      "sensor": "bottom",
+      "last_calibrated": "2026-01-05T09:45",
+      "notes": ""
+    },
 
-    { "station": "offshore", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
-    { "station": "offshore", "sensor": "bottom", "last_calibrated": "", "notes": "TBC" },
+    {
+      "station": "offshore",
+      "sensor": "top",
+      "last_calibrated": "TBC",
+      "notes": "Scheduled calibration pending"
+    },
+    {
+      "station": "offshore",
+      "sensor": "bottom",
+      "last_calibrated": "TBC",
+      "notes": "Scheduled calibration pending"
+    },
 
-    { "station": "estuary", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
+    {
+      "station": "estuary",
+      "sensor": "top",
+      "last_calibrated": "TBC",
+      "notes": "New deployment – initial calibration pending"
+    },
 
-    { "station": "scallops", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
-    { "station": "scallops", "sensor": "bottom", "last_calibrated": "", "notes": "TBC" },
-
-    { "station": "grayling", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
-
-    { "station": "seagrass", "sensor": "top", "last_calibrated": "", "notes": "TBC" },
-    { "station": "seagrass", "sensor": "bottom", "last_calibrated": "", "notes": "TBC" }
-  ]
-}
+    {
+      "station": "scallops",
+      "sensor": "top",
+      "last_calibrated": "2026-01-12T11:20",
+      "notes": ""
+    },
+    {
+      "station": "scallops",
