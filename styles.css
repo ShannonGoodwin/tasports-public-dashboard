@@ -11,32 +11,33 @@
   --muted:#b7c3dc;
   --muted-2:#93a3c7;
 
-  --border:rgba(255,255,255,10);
-  --border-2:rgba(255,255,255,14);
-  --shadow:0 10px 30px rgba(0,0,0,38);
-  --shadow-soft:0 8px 24px rgba(0,0,0,28);
+  --border:rgba(255,255,255,.10);
+  --border-2:rgba(255,255,255,.14);
+  --shadow:0 10px 30px rgba(0,0,0,.38);
+  --shadow-soft:0 8px 24px rgba(0,0,0,.28);
   --radius:16px;
 
   /* Status colours (DO NOT change these) */
-  --green: rgba(0,255,120,95);
-  --amber: rgba(255,190,0,95);
-  --red: rgba(255,60,60,95);
-  --stale: rgba(154,163,178,90);
-  --error: rgba(20,20,20,98);
+  --green: rgba(0,255,120,.95);
+  --amber: rgba(255,190,0,.95);
+  --red: rgba(255,60,60,.95);
+  --stale: rgba(154,163,178,.90);
+  --error: rgba(20,20,20,.98);
 
   /* Neutral (no trigger) */
-  --neutral: rgba(85,160,255,95);
+  --neutral: rgba(85,160,255,.95);
 
   /* Tile text contrast */
-  --tile-title: rgba(255,255,255,92);
-  --tile-value: rgba(255,255,255,98);
-  --tile-sub: rgba(210,220,240,88);
+  --tile-title: rgba(255,255,255,.92);
+  --tile-value: rgba(255,255,255,.98);
+  --tile-sub: rgba(210,220,240,.88);
 
   /* Map marker halo */
-  --marker-halo: rgba(255,255,255,92);
+  --marker-halo: rgba(255,255,255,.92);
 }
 
 *{box-sizing:border-box}
+
 html, body{height:100%}
 
 body{
@@ -46,8 +47,8 @@ body{
   color:var(--text);
 
   background:
-    radial-gradient(1200px 700px at 15% -10%, rgba(7,79,113,45) 0%, rgba(7,16,26,0) 55%),
-    radial-gradient(900px 550px at 95% 10%, rgba(0,141,128,30) 0%, rgba(7,16,26,0) 55%),
+    radial-gradient(1200px 700px at 15% -10%, rgba(7,79,113,.45) 0%, rgba(7,16,26,0) 55%),
+    radial-gradient(900px 550px at 95% 10%, rgba(0,141,128,.30) 0%, rgba(7,16,26,0) 55%),
     linear-gradient(180deg, #06101a 0%, #050c14 100%);
 }
 
@@ -59,7 +60,7 @@ body{
   top:0;
   z-index:10;
   backdrop-filter: blur(10px);
-  background: rgba(7,16,26,78);
+  background: rgba(7,16,26,.78);
   border-bottom:1px solid var(--border);
 }
 
@@ -86,7 +87,7 @@ body{
   display:block;
   object-fit:contain;
   margin-top:2px;     /* aligns with text baseline */
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,30));
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,.30));
 }
 
 .brand__title{
@@ -109,8 +110,8 @@ body{
 .header__divider{
   height:2px;
   background: linear-gradient(90deg,
-    rgba(0,141,128,55),
-    rgba(7,79,113,35),
+    rgba(0,141,128,.55),
+    rgba(7,79,113,.35),
     rgba(255,255,255,0)
   );
   opacity:.65;
@@ -131,7 +132,7 @@ body{
   padding:8px 12px;
   border-radius:999px;
   border:1px solid var(--border);
-  background:rgba(255,255,255,06);
+  background:rgba(255,255,255,.06);
   color:var(--text);
   text-decoration:none;
   font-size:13px;
@@ -139,14 +140,14 @@ body{
 }
 
 .navpill:hover{
-  background:rgba(255,255,255,10);
+  background:rgba(255,255,255,.10);
   transform: translateY(-1px);
-  border-color: rgba(255,255,255,18);
+  border-color: rgba(255,255,255,.18);
 }
 
 .navpill--active{
-  border-color: rgba(0,141,128,55);
-  box-shadow: 0 0 0 2px rgba(0,141,128,18);
+  border-color: rgba(0,141,128,.55);
+  box-shadow: 0 0 0 2px rgba(0,141,128,.18);
 }
 
 /* general text helpers */
@@ -167,7 +168,7 @@ h2{margin:0 0 12px 0; font-size:16px}
 }
 
 .panel{
-  background: linear-gradient(180deg, rgba(255,255,255,06), rgba(255,255,255,03));
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
   border:1px solid var(--border);
   border-radius:var(--radius);
   box-shadow:var(--shadow);
@@ -191,59 +192,6 @@ h2{margin:0 0 12px 0; font-size:16px}
 }
 
 /* ---------------------------
-   NOTE / CALLOUT (FNU vs NTU etc)
----------------------------- */
-.note{
-  margin: 10px 0 12px 0;
-  color: var(--muted);
-  font-size: 12.5px;
-  line-height: 1.35;
-  padding: 10px 12px;
-  border: 1px solid rgba(255,255,255,10);
-  border-radius: 12px;
-  background: rgba(255,255,255,03);
-}
-
-.note strong{
-  color: rgba(255,255,255,92);
-}
-
-.note-more{
-  margin: -6px 0 12px 0;
-  color: var(--muted);
-  font-size: 12.5px;
-}
-
-.note-more summary{
-  cursor: pointer;
-  color: rgba(159,195,255,95);
-  user-select: none;
-}
-
-.note-more summary:hover{
-  text-decoration: underline;
-}
-
-.note-more p{
-  margin: 8px 0 0 0;
-  line-height: 1.35;
-}
-
-/* ---------------------------
-   "LAST REFRESHED" LINE (optional)
----------------------------- */
-#dataRefreshed,
-#data-refreshed,
-#lastRefreshed,
-#last-refreshed{
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 6px;
-  line-height: 1.25;
-  opacity: 0.95;
-}
-
-/* ---------------------------
    TOP LEGEND (status-legend)
 ---------------------------- */
 .status-legend{
@@ -254,7 +202,7 @@ h2{margin:0 0 12px 0; font-size:16px}
   padding:8px 10px;
   border-radius:999px;
   border:1px solid var(--border);
-  background:rgba(255,255,255,05);
+  background:rgba(255,255,255,.05);
 }
 
 .status-legend__title{
@@ -285,8 +233,8 @@ h2{margin:0 0 12px 0; font-size:16px}
   height:10px;
   border-radius:999px;
   display:inline-block;
-  border:2px solid rgba(0,0,0,85);
-  box-shadow: 0 1px 8px rgba(0,0,0,35);
+  border:2px solid rgba(0,0,0,.85);
+  box-shadow: 0 1px 8px rgba(0,0,0,.35);
 }
 
 .swatch--green{ background: var(--green); }
@@ -298,7 +246,7 @@ h2{margin:0 0 12px 0; font-size:16px}
 /* Make error visually distinct vs stale */
 .swatch--error{
   background: transparent;
-  border: 2px dashed rgba(220,230,245,55);
+  border: 2px dashed rgba(220,230,245,.55);
   box-shadow:none;
 }
 
@@ -310,7 +258,7 @@ h2{margin:0 0 12px 0; font-size:16px}
   border-radius:14px;
   overflow:hidden;
   border:1px solid var(--border);
-  background: rgba(0,0,0,18);
+  background: rgba(0,0,0,.18);
 }
 
 /* Map label styling: no box, use halo/buffer for readability */
@@ -320,15 +268,33 @@ h2{margin:0 0 12px 0; font-size:16px}
   box-shadow: none !important;
   padding: 0 !important;
 
-  color: rgba(255,255,255,92) !important;
+  color: rgba(255,255,255,.92) !important;
   font-weight: 700;
   font-size: 12px;
 
   /* halo (buffer) to separate from basemap */
   text-shadow:
-    0 0 2px rgba(0,0,0,95),
-    0 0 6px rgba(0,0,0,85),
-    0 0 10px rgba(0,0,0,65);
+    0 0 2px rgba(0,0,0,.95),
+    0 0 6px rgba(0,0,0,.85),
+    0 0 10px rgba(0,0,0,.65);
+}
+
+.cal-table{
+  width:100%;
+  border-collapse: collapse;
+}
+
+.cal-table th, .cal-table td{
+  text-align:left;
+  padding:10px 10px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  font-size: 13px;
+  color: rgba(255,255,255,.90);
+}
+
+.cal-table th{
+  color: rgba(255,255,255,.82);
+  font-weight: 700;
 }
 
 /* Optional: slightly mute the basemap so markers + overlays read better */
@@ -339,9 +305,9 @@ h2{margin:0 0 12px 0; font-size:16px}
 /* Leaflet popup polish */
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip{
-  background: rgba(7,16,26,92);
+  background: rgba(7,16,26,.92);
   color: var(--text);
-  border: 1px solid rgba(255,255,255,14);
+  border: 1px solid rgba(255,255,255,.14);
   box-shadow: var(--shadow-soft);
 }
 
@@ -358,36 +324,7 @@ h2{margin:0 0 12px 0; font-size:16px}
 
 /* Stronger marker visibility: white halo */
 .marker-dot{
-  filter: drop-shadow(0 0 0 var(--marker-halo)) drop-shadow(0 0 12px rgba(0,0,0,35));
-}
-
-/* ---------------------------
-   CALIBRATION TABLE
----------------------------- */
-.cal-table{
-  width:100%;
-  border-collapse: collapse;
-}
-
-.cal-table th, .cal-table td{
-  text-align:left;
-  padding:10px 10px;
-  border-bottom:1px solid rgba(255,255,255,10);
-  font-size: 13px;
-  color: rgba(255,255,255,90);
-}
-
-.cal-table th{
-  color: rgba(255,255,255,82);
-  font-weight: 700;
-}
-
-/* Optional helper line under calibration table */
-.cal-footnote{
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.35;
+  filter: drop-shadow(0 0 0 var(--marker-halo)) drop-shadow(0 0 12px rgba(0,0,0,.35));
 }
 
 /* ---------------------------
@@ -404,25 +341,11 @@ h2{margin:0 0 12px 0; font-size:16px}
   grid-column: 1 / -1;
 }
 
-/* Visual polish for single-sensor (span-2) tiles:
-   Keep the tile full-width, but centre the *content block* so it doesn't look empty. */
-.tile--span2 .tile-title,
-.tile--span2 .tile-value,
-.tile--span2 .tile-sub{
-  max-width: 420px;     /* tweak 380–520px if you want the content block narrower/wider */
-  margin-left: auto;
-  margin-right: auto;
-  text-align: left;
-}
-
-/* Slightly tighter vertical spacing on span-2 tiles to reduce perceived emptiness */
-.tile--span2 .tile-value{ margin-top: 4px; }
-.tile--span2 .tile-sub{ margin-top: 2px; }
-
 @media (max-width: 900px){
   .tiles-grid{ grid-template-columns: 1fr; } /* mobile stacks naturally */
   .tile--span2{ grid-column: auto; }
 }
+
 
 /* Split turbidity tiles into left/right panels (6d vs 15d) */
 .tiles-split{
@@ -435,14 +358,14 @@ h2{margin:0 0 12px 0; font-size:16px}
 .tiles-panel{
   padding: 10px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,10);
-  background: rgba(255,255,255,03);
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
 }
 
 .tiles-panel__title{
   font-size: 13px;
   font-weight: 700;
-  color: rgba(255,255,255,86);
+  color: rgba(255,255,255,.86);
   margin: 0 0 10px 0;
 }
 
@@ -460,88 +383,72 @@ h2{margin:0 0 12px 0; font-size:16px}
   border: 2px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.07);
   border-radius: 14px;
-  padding: 11px 13px; /* slightly tighter than before */
+  padding: 12px 14px;
   text-align: left;
   cursor: pointer;
   transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
   color: var(--text);
-  box-shadow: 0 6px 18px rgba(0,0,0,20);
+  box-shadow: 0 6px 18px rgba(0,0,0,.20);
 }
 
 .tile:hover{
   transform: translateY(-1px);
   background: rgba(255,255,255,0.10);
-  box-shadow: 0 10px 26px rgba(0,0,0,28);
+  box-shadow: 0 10px 26px rgba(0,0,0,.28);
 }
 
 .tile-title{
-  font-weight:600;
+  font-weight:600;       /* was 700 */
   font-size:13px;
   color: var(--tile-title);
   opacity:.95;
-  display:flex;                 /* supports optional chip layout */
-  align-items:center;
-  gap:8px;
-}
-
-/* Optional small label chip (e.g. TOP/BOTTOM) */
-.tile-title .chip{
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,14);
-  background: rgba(255,255,255,05);
-  color: rgba(255,255,255,86);
-  letter-spacing: .2px;
 }
 
 .tile-value{
-  font-size: 26px;
+  font-size: 26px;        /* slightly smaller */
   font-weight: 600;      /* Calibri Semibold feel */
   margin-top: 6px;
   color: var(--tile-value);
   letter-spacing: .1px;
-  line-height: 1.05;
-  text-shadow: 0 1px 10px rgba(0,0,0,35);
+  text-shadow: 0 1px 10px rgba(0,0,0,.35);
 }
 
 .tile-sub{
   font-size: 12px;
   margin-top: 3px;
   color: var(--tile-sub);
-  opacity: .92;
-  text-shadow: 0 1px 12px rgba(0,0,0,40);
+  text-shadow: 0 1px 12px rgba(0,0,0,.40);
 }
 
 /* Status styling (match app.js classes) */
 .tile--green{
-  border-color: rgba(0,255,120,65);
-  background: linear-gradient(180deg, rgba(0,255,120,18), rgba(255,255,255,06));
+  border-color: rgba(0,255,120,.65);
+  background: linear-gradient(180deg, rgba(0,255,120,.18), rgba(255,255,255,.06));
 }
 
 .tile--amber{
-  border-color: rgba(255,190,0,70);
-  background: linear-gradient(180deg, rgba(255,190,0,20), rgba(255,255,255,06));
+  border-color: rgba(255,190,0,.70);
+  background: linear-gradient(180deg, rgba(255,190,0,.20), rgba(255,255,255,.06));
 }
 
 .tile--red{
-  border-color: rgba(255,60,60,70);
-  background: linear-gradient(180deg, rgba(255,60,60,22), rgba(255,255,255,06));
+  border-color: rgba(255,60,60,.70);
+  background: linear-gradient(180deg, rgba(255,60,60,.22), rgba(255,255,255,.06));
 }
 
 .tile--neutral{
-  border-color: rgba(85,160,255,70);
-  background: linear-gradient(180deg, rgba(85,160,255,12), rgba(255,255,255,06));
+  border-color: rgba(85,160,255,.70);
+  background: linear-gradient(180deg, rgba(85,160,255,.12), rgba(255,255,255,.06));
 }
 
 .tile--stale{
-  border-color: rgba(154,163,178,65);
-  background: linear-gradient(180deg, rgba(154,163,178,18), rgba(255,255,255,05));
+  border-color: rgba(154,163,178,.65);
+  background: linear-gradient(180deg, rgba(154,163,178,.18), rgba(255,255,255,.05));
 }
 
 .tile--error{
-  border-color: rgba(255,255,255,18);
-  background: linear-gradient(180deg, rgba(0,0,0,65), rgba(255,255,255,04));
+  border-color: rgba(255,255,255,.18);
+  background: linear-gradient(180deg, rgba(0,0,0,.65), rgba(255,255,255,.04));
 }
 .tile--error .tile-sub{ opacity: .92; }
 .tile--error .tile-value{ letter-spacing: .6px; }
@@ -550,7 +457,7 @@ h2{margin:0 0 12px 0; font-size:16px}
 .tile:focus-visible,
 .navpill:focus-visible,
 select:focus-visible{
-  outline: 3px solid rgba(0,141,128,30);
+  outline: 3px solid rgba(0,141,128,.30);
   outline-offset: 2px;
 }
 
@@ -572,35 +479,36 @@ select:focus-visible{
   color: var(--muted);
 }
 
-/* Select styling (including dropdown readability) */
 select{
   border:1px solid var(--border);
-  background:rgba(255,255,255,06);
-  color: rgba(255,255,255,95);
-  font-weight: 500;
+  background:rgba(255,255,255,.06);
+  color:var(--text);
   padding:10px 10px;
   border-radius:12px;
+}
+select{
+  color: rgba(255,255,255,.95);
+  font-weight: 500;
 }
 
 /* Dropdown list items */
 select option{
   background-color: #0c1826;        /* same as panel background */
-  color: rgba(255,255,255,95);     /* high contrast */
+  color: rgba(255,255,255,.95);     /* high contrast */
   font-weight: 500;
 }
 
 /* Hovered / active option */
 select option:hover,
 select option:checked{
-  background-color: rgba(0,141,128,35);
+  background-color: rgba(0,141,128,.35);
   color: #ffffff;
 }
 
 /* Disabled / placeholder-style options (if any appear later) */
 select option:disabled{
-  color: rgba(255,255,255,45);
+  color: rgba(255,255,255,.45);
 }
-
 .charts-grid{
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -612,7 +520,7 @@ select option:disabled{
   background:rgba(255,255,255,0.06);
   border-radius:14px;
   overflow:hidden;
-  box-shadow: 0 8px 22px rgba(0,0,0,22);
+  box-shadow: 0 8px 22px rgba(0,0,0,.22);
 }
 
 .chart-card-head{
@@ -627,14 +535,14 @@ select option:disabled{
 .chart-title{
   font-weight:700;
   font-size:13px;
-  color: rgba(255,255,255,92);
+  color: rgba(255,255,255,.92);
 }
 
 .chart-open{
   text-decoration:none;
   color:var(--text);
   border:1px solid var(--border);
-  background:rgba(255,255,255,06);
+  background:rgba(255,255,255,.06);
   padding:6px 10px;
   border-radius:999px;
   font-size:12px;
@@ -642,9 +550,9 @@ select option:disabled{
 }
 
 .chart-open:hover{
-  background:rgba(255,255,255,10);
+  background:rgba(255,255,255,.10);
   transform: translateY(-1px);
-  border-color: rgba(255,255,255,18);
+  border-color: rgba(255,255,255,.18);
 }
 
 .chart-card iframe{
@@ -670,13 +578,13 @@ select option:disabled{
 }
 
 .footer__link{
-  color: rgba(159,195,255,95);
+  color: rgba(159,195,255,.95);
   text-decoration: none;
-  border-bottom: 1px solid rgba(159,195,255,35);
+  border-bottom: 1px solid rgba(159,195,255,.35);
 }
 
 .footer__link:hover{
-  border-bottom-color: rgba(159,195,255,75);
+  border-bottom-color: rgba(159,195,255,.75);
 }
 
 /* ---------------------------
@@ -737,3 +645,5 @@ select option:disabled{
   font-size: 12px;
   opacity: 0.8;
 }
+
+
