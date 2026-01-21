@@ -38,15 +38,10 @@
 
   <main class="layout">
 
-    <!-- =========================
-         TURBIDITY TILES
-    ========================== -->
     <section class="panel">
       <div class="panel-head">
         <div>
           <h2>Turbidity (rolling medians)</h2>
-          <!-- NEW: populated by app.js -->
-          <div id="dataRefreshed" class="small subtle"></div>
         </div>
 
         <div class="status-legend" aria-label="Turbidity status legend">
@@ -62,14 +57,11 @@
         </div>
       </div>
 
-      <!-- Unit note -->
-      <p class="note">
-        Turbidity is shown in <strong>FNU</strong> (telemetry).
-        Trigger values as defined in the Adaptive Monitoring and Management Plan (AMMP) are defined in <strong>NTU</strong>;
-        FNU and NTU are considered comparable for environmental monitoring.
+      <!-- NEW: unit note -->
+      <p class="small subtle" style="margin: 6px 0 12px 0;">
+        Turbidity is displayed in Formazin Nephelometric Units (FNU) from telemetry sensors, while trigger values from the Adaptive Monitoring and Management Plan (AMMP) are reported in Nephelometric Turbidity Unit (NTU). However, FNU and NTU are considered directly comparable for environmental monitoring applications.
       </p>
 
-      
       <div class="tiles-split">
         <div class="tiles-panel">
           <div class="tiles-panel__title">6-day rolling median</div>
@@ -83,9 +75,6 @@
       </div>
     </section>
 
-    <!-- =========================
-         MAP
-    ========================== -->
     <section class="panel panel--map">
       <h2>Site map</h2>
       <div id="map"></div>
@@ -96,10 +85,8 @@
   <footer class="footer">
     <div class="footer__inner">
       <div class="small subtle">
-        Data source: Eagle.io (Xylem telemetry platform).
-        Tiles are derived from anonymous public data links; charts are anonymous public embeds.
-        &nbsp;•&nbsp;
-        <a class="footer__link" href="/calibration.html">Instrument calibration</a>
+        Data source: Eagle.io (Xylem telemetry platform). Tiles are derived from anonymous public data links; charts are anonymous public embeds.
+        &nbsp;•&nbsp;<a class="footer__link" href="/calibration.html">Instrument calibration</a>
       </div>
     </div>
   </footer>
