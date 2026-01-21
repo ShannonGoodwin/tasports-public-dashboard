@@ -205,8 +205,8 @@ function tileValueHtml(t) {
           <div class="tile-sub">${formatTileTime(t.timestamp)}${t.stale? "9stale)": ""}</div>;
 }
 
-function tileTitle(stationName, level) {
-  return `${stationName} – ${String(level).toUpperCase()}`;
+ffunction tileTitleParts(stationName, level){
+  return { site: stationName, level: String(level).toUpperCase() };
 }
 
 /**
@@ -779,4 +779,5 @@ function initChartsPage(stations) {
     if (calHost) calHost.innerHTML = `<div class="small subtle">${msg}</div>`;
   }
 })();
+
 
