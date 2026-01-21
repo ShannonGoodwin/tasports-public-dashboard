@@ -230,6 +230,21 @@ h2{margin:0 0 12px 0; font-size:16px}
 }
 
 /* ---------------------------
+   "LAST REFRESHED" LINE (optional)
+   - app.js updates these IDs if present in HTML
+---------------------------- */
+#dataRefreshed,
+#data-refreshed,
+#lastRefreshed,
+#last-refreshed{
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.25;
+  opacity: 0.95;
+}
+
+/* ---------------------------
    TOP LEGEND (status-legend)
 ---------------------------- */
 .status-legend{
@@ -484,6 +499,19 @@ h2{margin:0 0 12px 0; font-size:16px}
   text-shadow: 0 1px 12px rgba(0,0,0,.40);
 }
 
+/* NEW: Single-sensor tiles (Estuary / Grayling etc.) — vertically center content */
+.tile--single{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-height: 104px; /* keeps them from looking squashed vs paired tiles */
+}
+
+/* Prevent hover “jump” from flex + transform looking odd */
+.tile--single:hover{
+  transform: translateY(-1px);
+}
+
 /* Status styling (match app.js classes) */
 .tile--green{
   border-color: rgba(0,255,120,.65);
@@ -659,6 +687,9 @@ select option:disabled{
   .brand__logo{ width:40px; height:40px; }
   .brand__title{ font-size:17px; }
   #map{ height:460px; }
+
+  /* single-sensor tiles: don't force extra height on small screens */
+  .tile--single{ min-height: 0; }
 }
 
 /* =================================
