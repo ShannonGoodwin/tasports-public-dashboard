@@ -21,15 +21,15 @@
 const TURBIDITY_THRESHOLDS = {
   seagrass: {
     "6d": { amber: 4.0, red: 4.33 },
-    "15d": { amber: 3.0, red: 3.3 }
+    "15d": { amber: 4.0, red: 4.33 }
   },
   scallops: {
     "6d": { amber: 4.0, red: 4.33 },
-    "15d": { amber: 3.0, red: 3.3 }
+    "15d": { amber: 4.0, red: 4.33 }
   },
   grayling: {
-    "6d": { amber: 8.5, red: 15.0 },
-    "15d": { amber: 4.9, red: 16.5 }
+    "6d": { amber: 15, red: 16.5 },
+    "15d": { amber: 15, red: 16.5 }
   }
 };
 
